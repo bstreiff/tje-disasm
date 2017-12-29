@@ -13,11 +13,10 @@ Region = namedtuple("Region", "address length file");
 
 regions = [
     Region(0x0009287c,	0x620,	"splash_sega_logo.pat"),
-    Region(0x000982a8,	0x20,	"splash_colors1.pal"),
-    Region(0x00098348,	0x20,	"splash_colors3.pal"),
     Region(0x000a783c,	0x560,	"starfield_large.pat"),
     Region(0x000a7d9c,	0x100,	"starfield_small.pat"),
     Region(0x0002c54c,	0x21E0,	"tjae_logo.pat"),
+    Region(0x000a839e,	0x1540,	"text.pat"),
 ]
 
 with open(args['rom'], "rb") as rom:
