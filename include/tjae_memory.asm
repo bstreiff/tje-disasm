@@ -8,6 +8,18 @@ KEYDOWN_A		equ	$40
 KEYDOWN_B		equ	$10
 KEYDOWN_C		equ	$20
 
+; Is this a Random World or a Fixed World game?
+WORLD_TYPE		equ	$FF9134		; byte
+WORLD_TYPE_RANDOM	equ	$00
+WORLD_TYPE_FIXED	equ	$01
+
+; I *think* these influence the level generator. There's a fixed
+; pattern here if you're in Fixed World.
+; $FF9166 - Level 0?
+; $FF9168 - Level 1
+; $FF916A - Level 2, etc...
+LEVEL_SEEDS		equ	$FF9136		; word[26]
+
 ; This is a mask of map tiles that have been uncovered. Each level has
 ; a 8x7 map, so each level occupies 7 bytes.
 DISCOVERED_MAP_MASK	equ	$FF91F3		; byte[7][25]
