@@ -93,6 +93,31 @@ P2_INVENTORY		equ	$FFDAD2		; byte[16]
 ; } Object
 OBJECT_TABLE		equ	$FFDAE2		; Object[64]
 
+; active powerup
+;	$00: wings
+;	$01: spring shoes
+;	$02: innertube
+;	$03: tomatoes
+;	$04: slingshot
+;	$05: rocket skates
+;	$06: rosebushes
+;	$07: hitops
+; other values are invalid
+P1_POWERUP		equ	$FFDE50		; byte
+P2_POWERUP		equ	$FFDE51		; byte
+P1_POWERUP_TIMER	equ	$FFDE52		; word
+P2_POWERUP_TIMER	equ	$FFDE54		; word
+
+P1_BURPS_LEFT		equ	$FFDE62		; byte
+P2_BURPS_LEFT		equ	$FFDE63		; byte
+P1_BURP_TIMER		equ	$FFDE64		; byte
+P2_BURP_TIMER		equ	$FFDE65		; byte
+
+P1_RAIN_CLOUD_STATE	equ	$FFDE66		; byte ($07 when active?)
+P2_RAIN_CLOUD_STATE	equ	$FFDE67		; byte ($08 when active?)
+P1_RAIN_CLOUD_TIMER	equ	$FFDE68		; word
+P2_RAIN_CLOUD_TIMER	equ	$FFDE6A		; word
+
 P1_LIVES		equ	$FFA248		; byte
 P2_LIVES		equ	$FFA249		; byte
 P1_BUCKS		equ	$FFA24A		; byte
@@ -101,6 +126,14 @@ P1_POINTS		equ	$FFA24C		; word
 P2_POINTS		equ	$FFA24E		; word
 P1_RANK			equ	$FFA250		; byte
 P2_RANK			equ	$FFA251		; byte
+
+; Countdown until tomato rain expires.
+P1_TOMATO_RAIN_TIMER	equ	$FFE1E8		; byte
+P2_TOMATO_RAIN_TIMER	equ	$FFE1E9		; byte
+; This seems to be a smaller countdown used for regulating individual
+; tomatoes. If locked to $00 or $01, tomatoes drop in bursts of 8.
+P1_TOMATO_RAIN_THROTTLE	equ	$FFE1FA		; byte
+P2_TOMATO_RAIN_THROTTLE	equ	$FFE1FB		; byte
 
 ; Ship-piece levels is an array of ten bytes, with each
 ; byte corresponding to a particular ship piece.
