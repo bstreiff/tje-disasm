@@ -12,11 +12,11 @@ args = vars(parser.parse_args())
 Region = namedtuple("Region", "address length file");
 
 regions = [
-    Region(0x0009287c,	0x620,	"splash_sega_logo.pat"),
-    Region(0x000a783c,	0x560,	"starfield_large.pat"),
-    Region(0x000a7d9c,	0x100,	"starfield_small.pat"),
-    Region(0x0002c54c,	0x21E0,	"tjae_logo.pat"),
-    Region(0x000a839e,	0x1540,	"text.pat"),
+    Region(0x000928ec,	0x620,	"splash_sega_logo.pat"),
+    Region(0x000a78ac,	0x560,	"starfield_large.pat"),
+    Region(0x000a7e0c,	0x100,	"starfield_small.pat"),
+    Region(0x0002c5ba,	0x21E0,	"tjae_logo.pat"),
+    Region(0x000a840e,	0x1540,	"text.pat"),
 ]
 
 with open(args['rom'], "rb") as rom:
@@ -31,7 +31,7 @@ with open(args['rom'], "rb") as rom:
     # Get from 0x18C "00" or "02"
     rom.seek(0x18C)
     version = rom.read(2)
-    if (version != b"00"):
+    if (version != b"02"):
         raise "Wrong Version"
 
     if not os.path.exists("resources"):

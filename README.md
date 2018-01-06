@@ -17,15 +17,20 @@ sha1sum:  85e8d0a4fac591b25b77c35680ac4175976f251b
 REV 00 exists as a cartridge.
 REV 02 appears to be the version currently distributed on Steam.
 
-This analysis is presently focused on the REV 00 version.
+This analysis is presently focused on the REV 02 version.
 
-It it unknown what substantial differences exist between the two, other
-than that REV 02 contains additional code in some places which causes
-offsets of things that come later to be shifted around. :(
+It it unknown what substantial differences exist between the two, aside from
+some minor code differences that cause all the offsets to shift around.
 
-This analysis utilizes game content from the REV 00 version of the game.
-In order to use the tooling, you will need a REV 00 ROM, which you should
-rename as 'tjae_rev00.bin' in the root directory.
+This analysis utilizes game content from the REV 02 version of the game.
+In order to use the tooling, you will need a REV 02 ROM, which you should
+rename as 'tjae_rev02.bin' in the root directory.
+
+You can obtain such a ROM by purchasing it from Steam (on Windows).
+- http://store.steampowered.com/app/71166/ToeJam__Earl/
+
+Once installed, it can be found at:
+- `<Steam Directory>\SteamApps\common\Sega Classics\uncompressed ROMs\ToeJamEarl.SGD`
 
 You will also need:
 - [VASM](http://sun.hasenbraten.de/vasm/)

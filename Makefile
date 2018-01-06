@@ -1,4 +1,4 @@
-SOURCE_ROM=tjae_rev00.bin
+SOURCE_ROM=tjae_rev02.bin
 VASM=vasmm68k_mot -m68000 -spaces -Fbin
 OBJDUMP=m68k-linux-gnu-objdump -D -b binary -m m68k:68000
 HASH=sha1sum
