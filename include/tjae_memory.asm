@@ -30,6 +30,17 @@ DISCOVERED_MAP_MASK	equ	$FF91F3		; byte[7][25]
 ; over this limit are just not displayed at all.)
 TRANSPARENT_MAP_MASK	equ	$FF92A0		; byte[7][25]
 
+P1_TEXT_WIGGLE		equ	$FF935E		; byte
+; if counter % 4 == 0, then WIGGLE == !WIGGLE
+P1_MENU_COUNTER		equ	$FF9360		; byte
+
+P1_MENU_OPEN		equ	$FF9364		; byte
+
+; Present menu row
+P1_MENU_SCROLL		equ	$FF9366		; byte
+P1_MENU_SEL_ROW		equ	$FF9368		; byte
+P1_MENU_SEL_COL		equ	$FF936A		; byte
+
 ; Sprite data for the font. Staging buffer for loading into VDP?
 TEXT_SPRITE_DATA_START	equ	$FF9388
 TEXT_SPRITE_DATA_LEN	equ	$EC0
