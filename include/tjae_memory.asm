@@ -8,6 +8,22 @@ KEYDOWN_A		equ	$40
 KEYDOWN_B		equ	$10
 KEYDOWN_C		equ	$20
 
+
+P1_CAMERA_X		equ	$FF8002		; word
+P1_CAMERA_Y		equ	$FF8004		; word
+P2_CAMERA_X		equ	$FF8006		; word
+P2_CAMERA_Y		equ	$FF8008		; word
+
+; Sega logo display and Jam Out have a hook pointer here.
+; During intro, menus, and in-game, this is null.
+VBLANK_FUNC		equ	$FF800A		; long
+
+; seems to be how everything keeps track of time?
+TIME_COUNTER		equ	$FF800E		; word
+
+; Seems to govern whether or not we're in split-screen
+SPLIT_SCREEN		equ	$FF8010		; byte
+
 ; Is this a Random World or a Fixed World game?
 WORLD_TYPE		equ	$FF9134		; byte
 WORLD_TYPE_RANDOM	equ	$00
