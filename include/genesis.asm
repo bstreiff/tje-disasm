@@ -1,14 +1,12 @@
-; Main header file for including Genesis constants
-
-	INCLUDE genesis_vdp.asm
+;----------------------------------------------------------------------
+; Main header file for constants related to the Genesis/Mega Drive
+; hardware.
+;----------------------------------------------------------------------
 
 RAM_ADDR		equ	$FF0000
 RAM_LENGTH		equ	$010000
 RAM_LENGTH_IN_WORDS	equ	$8000
 RAM_LENGTH_IN_LONGS	equ	$4000
-
-Z80_RAM_START		equ	$A00000
-Z80_RAM_END		equ	$A01FFF
 
 ; Indicates the hardware version.
 HW_VERSION		equ	$A10001		; word
@@ -41,7 +39,12 @@ IO_EXP_TXDATA		equ	$A1001B		; word
 IO_EXP_RXDATA		equ	$A1001D		; word
 IO_EXP_SCTRL		equ	$A1001F		; word
 
+;----------------------------------------------------------------------
 ; Z80
+;----------------------------------------------------------------------
+
+Z80_RAM_START		equ	$A00000
+Z80_RAM_END		equ	$A01FFF
 
 ; Bus request. For the 68K to access the Z80 memory, the procedure is
 ;   Write $0100 into Z80_BUSREQ
@@ -59,3 +62,27 @@ Z80_RESET_REQUEST	equ	$0000
 Z80_RESET_CANCEL	equ	$0100
 
 TMSS_CTRL		equ	$A14000		; long
+
+;----------------------------------------------------------------------
+; VDP
+;----------------------------------------------------------------------
+
+VDP_DATA_PORT		equ	$C00000		; word
+VDP_DATA_PORT_MIRROR	equ	$C00002
+VDP_CTRL_PORT		equ	$C00004
+VDP_CTRL_PORT_MIRROR	equ	$C00006
+VDP_HVCOUNTER_PORT	equ	$C00008
+
+; VDP status flags (read from VDP_CTRL_PORT)
+VDP_STS_FIFOEMPTY	equ	$0200
+VDP_STS_FIFOFULL	equ	$0100
+VDP_STS_VINTPENDING	equ	$0080
+VDP_STS_SPROVERFLOW	equ	$0040
+VDP_STS_SPRCOLLISION	equ	$0020
+VDP_STS_ODDFRAME	equ	$0010
+VDP_STS_VBLANK		equ	$0008
+VDP_STS_HBLANK		equ	$0004
+VDP_STS_DMABUSY		equ	$0002
+VDP_STS_PALMODE		equ	$0001
+
+VDP_CTRL_REG_WRITE	equ	$8000
