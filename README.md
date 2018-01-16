@@ -1,5 +1,15 @@
 This is an analysis of the Sega Genesis game "Toejam and Earl".
 
+--
+
+DISCLAIMER: Any and all content presented in this repository is presented for
+informational and educational purposes only. Commercial usage is expressly
+prohibited. I claim no ownership of any code in this repository. You assume
+any and all responsibility for using this content responsibly. I claim no
+responsibility or warranty.
+
+--
+
 Two known revisions of this game exist:
 
 REV 00:
