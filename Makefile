@@ -1,5 +1,5 @@
 SOURCE_ROM=tjae_rev02.bin
-VASM=vasmm68k_mot -m68000 -spaces
+VASM=vasmm68k_mot -m68000 -spaces -maxerrors=0
 OBJDUMP=m68k-linux-gnu-objdump
 OBJDUMP_DISASSEMBLE=$(OBJDUMP) -D -b binary -m m68k:68000
 OBJDUMP_GETSYMS=$(OBJDUMP) -t
