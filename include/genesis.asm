@@ -46,6 +46,15 @@ IO_EXP_SCTRL		equ	$A1001F		; word
 Z80_RAM_START		equ	$A00000
 Z80_RAM_END		equ	$A01FFF
 
+; The YM2612 is in the Z80's memory space, but is accessible from the
+; 68K at these addresses. P0 is channels 1-3, P1 is channels 4-6.
+YM2612_P0_ADDR		equ	$A04000
+YM2612_P0_DATA		equ	$A04001
+YM2612_P1_ADDR		equ	$A04002
+YM2612_P1_DATA		equ	$A04003
+
+	INCLUDE ym2612.asm
+
 ; Bus request. For the 68K to access the Z80 memory, the procedure is
 ;   Write $0100 into Z80_BUSREQ
 ;   Wait until bit 8 in Z80_BUSREQ becomes 0
