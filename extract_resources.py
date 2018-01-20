@@ -17,6 +17,7 @@ regions = [
     Region(0x000a7e0c,	0x100,	"starfield_small.pat"),
     Region(0x0002c5ba,	0x21E0,	"tjae_logo.pat"),
     Region(0x000a840e,	0x1540,	"text.pat"),
+    Region(0x000a994e,	0x500,	"level_numbers.pat"),
     Region(0x0003f06a,  0x050e, "sound_driver.bin"),
 ]
 
