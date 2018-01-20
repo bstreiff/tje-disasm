@@ -61,6 +61,32 @@ P1_MENU_SEL_COL		equ	$FF936A		; byte
 TEXT_SPRITE_DATA_START	equ	$FF9388
 TEXT_SPRITE_DATA_LEN	equ	$EC0
 
+P1_LIVES		equ	$FFA248		; byte
+P2_LIVES		equ	$FFA249		; byte
+P1_BUCKS		equ	$FFA24A		; byte
+P2_BUCKS		equ	$FFA24B		; byte
+P1_POINTS		equ	$FFA24C		; word
+P2_POINTS		equ	$FFA24E		; word
+P1_RANK			equ	$FFA250		; byte
+P2_RANK			equ	$FFA251		; byte
+
+P1_POS_X		equ	$FFA25A		; word
+P1_POS_Y		equ	$FFA25C		; word
+; ground level is $0, deep in sand is $FFEC, wings top out at about $003A
+P1_POS_Z		equ	$FFA25E		; word
+P1_ACCEL_X		equ	$FFA260		; word
+P1_ACCEL_Y		equ	$FFA262		; word
+P1_ACCEL_Z		equ	$FFA264		; word
+P1_LEVEL		equ	$FFA2A6		; byte
+
+P2_POS_X		equ	$FFA2DA		; word
+P2_POS_Y		equ	$FFA2DC		; word
+P2_POS_Z		equ	$FFA2DE		; word
+P2_ACCEL_X		equ	$FFA300		; word
+P2_ACCEL_Y		equ	$FFA302		; word
+P2_ACCEL_Z		equ	$FFA304		; word
+P2_LEVEL		equ	$FFA326		; byte
+
 ; The idle counter counts up every frame(?) and is reset when the player
 ; moves. When it exceeds $012C, the player falls asleep.
 P1_IDLE_COUNTER		equ	$FFDA44		; word
@@ -144,15 +170,6 @@ P1_RAIN_CLOUD_STATE	equ	$FFDE66		; byte ($07 when active?)
 P2_RAIN_CLOUD_STATE	equ	$FFDE67		; byte ($08 when active?)
 P1_RAIN_CLOUD_TIMER	equ	$FFDE68		; word
 P2_RAIN_CLOUD_TIMER	equ	$FFDE6A		; word
-
-P1_LIVES		equ	$FFA248		; byte
-P2_LIVES		equ	$FFA249		; byte
-P1_BUCKS		equ	$FFA24A		; byte
-P2_BUCKS		equ	$FFA24B		; byte
-P1_POINTS		equ	$FFA24C		; word
-P2_POINTS		equ	$FFA24E		; word
-P1_RANK			equ	$FFA250		; byte
-P2_RANK			equ	$FFA251		; byte
 
 ; Countdown until tomato rain expires.
 P1_TOMATO_RAIN_TIMER	equ	$FFE1E8		; byte
