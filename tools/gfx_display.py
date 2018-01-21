@@ -1,0 +1,176 @@
+#!/usr/bin/env python
+# display an image out of the rom
+#
+# this one is in python2 because debian's pygame package is python2 only
+
+import argparse
+import os
+import pygame
+import struct
+from collections import namedtuple
+from enum import Enum
+
+parser = argparse.ArgumentParser(description='Graphic Viewer')
+parser.add_argument('-r', '--rom', help='Source ROM', required=True)
+parser.add_argument('-a', '--addr', help='Address', required=True)
+args = vars(parser.parse_args())
+
+addr = int(args['addr'], 0)
+
+ItemObjHeader = namedtuple("ItemObjHeader", "width_tiles height_tiles offset_x offset_y offset_z draw_flags data_addr")
+StatusIconHeader = namedtuple("ItemObjHeader", "width_tiles height_tiles draw_flags data_addr")
+
+# graphics seem to be defined as;
+# label_what_data:
+#	dc.b	$22, $33, ... ; compressed data
+# label_what:
+#	dc.b	$01	; ??? frame count
+#	dc.b	$00	; ???
+#	dc.b	$00	; ???
+#	dc.b	$00	; ???
+#	dc.b	$03	; tile width
+#	dc.b	$02	; tile height
+#	dc.b	$F5	; x draw offset
+#	dc.b	$F4	; y draw offset
+#	dc.b	$F3	; z offset?
+#	dc.b	$02	; palette and other flags?
+#	dc.l	label_what_data	; pointer to data
+
+class DrawOrder(Enum):
+    ROW_MAJOR = 0
+    COLUMN_MAJOR = 1
+
+width_tiles = 0
+height_tiles = 0
+decompressed_data = b''
+palettes = []
+palette_index = 0
+
+def nop():
+    return
+
+# turn a CRAM value into a (r,g,b) tuple
+def cram_to_color(val):
+    blue =  (val & 0x0E00) >> 9
+    green = (val & 0x00E0) >> 5
+    red =   (val & 0x000E) >> 1
+    return (red << 5, green << 5, blue << 5)
+
+# I think this gets used for more than just item objects;
+# item objects just use this with framecount=1
+def header_parse_itemobj(rom):
+    # We have to add an additional two pad bytes because 'struct'
+    # wants to have the padding and I don't know how to make it not.
+    header = struct.unpack(">bbbbBBbbbBIxx", rom.read(16))
+
+    return ItemObjHeader(header[4], header[5], header[6], header[7], header[8], header[9], header[10])
+
+# used for status icons on the hud
+def header_parse_status(rom):
+    # We have to add an additional two pad bytes because 'struct'
+    # wants to have the padding and I don't know how to make it not.
+    header = struct.unpack(">BBbbbBIxx", rom.read(12))
+    print(header)
+
+    return StatusIconHeader(header[0], header[1], header[5], header[6])
+
+with open(args['rom'], "rb") as rom:
+    rom.seek(addr)
+    header = header_parse_itemobj(rom)
+    #header = header_parse_status(rom)
+    width_tiles = header.width_tiles
+    height_tiles = header.height_tiles
+
+    palette_index = header.draw_flags & 0x03
+    if ((header.draw_flags & 0x80) == 0x80):
+        draw_order = DrawOrder.COLUMN_MAJOR
+    else:
+        draw_order = DrawOrder.ROW_MAJOR
+
+    total_tiles = width_tiles * height_tiles
+    expected_bytes = total_tiles * 32
+
+    rom.seek(header.data_addr)
+    while len(decompressed_data) <= expected_bytes:
+        byte = struct.unpack(">b", rom.read(1))[0];
+        print("[action: %d]" % byte)
+
+        if (byte == 0):
+            nop()
+        elif (byte < -64):
+            count = -64 - byte
+            decompressed_data += (b'\x00' * count)
+            print("%d copies of zero" % (count))
+        elif (byte < 0):
+            count = -byte
+            byte_to_copy = rom.read(1)
+            print(len(decompressed_data))
+            decompressed_data += byte_to_copy * count
+            print(len(decompressed_data))
+            print("%d copies of %02x" % (count, struct.unpack(">B", byte_to_copy)[0]))
+        else:
+            count = byte
+            direct_data = rom.read(count)
+            decompressed_data += direct_data
+            print("%d direct: " % (count))
+            print(tuple(direct_data))
+
+    #print(expected_bytes)
+    #print(len(decompressed_data))
+    #print(tuple(decompressed_data))
+
+    # also we need palettes
+    rom.seek(0x098138)
+    for p in range(0, 4):
+        raw_pal = struct.unpack(">16H", rom.read(32));
+        palettes.append( map(cram_to_color, raw_pal) )
+
+running = True
+
+tile_mag = 16
+
+screen = pygame.display.set_mode((width_tiles * 8 * tile_mag, height_tiles * 8 * tile_mag))
+pygame.display.set_caption("gfx_display")
+screen.fill((255, 255, 255))
+
+#tiles = pygame.Surface((8, 8 * total_tiles), depth=4)
+
+tiles = []
+
+def scale(t, s):
+    return tuple([s*x for x in t])
+
+pal = palettes[palette_index]
+
+for t in range(0, width_tiles * height_tiles):
+    tiles.append(pygame.Surface((8 * tile_mag, 8 * tile_mag)))
+
+# each tile is 32 bytes (64 4bpp palette entries) long
+for b in range(0, 32*width_tiles*height_tiles):
+    value = struct.unpack(">B", decompressed_data[b])[0]
+    v1 = (value & 0xF0) >> 4
+    v2 = (value & 0x0F)
+    if (draw_order == DrawOrder.ROW_MAJOR):
+        col = (b & 0x03)
+        row = (b >> 2)
+
+        while (row >= (height_tiles*8)):
+            row -= height_tiles*8
+            col += 4
+    else:
+        col = (b >> 4)
+        row = (b & 0x0F)
+
+    col = col * 2
+
+    #print("(%d, %d) = %02X" % (col, row, value))
+    #print("(%d, %d) = %X" % (col+1, row, v2))
+    pygame.draw.rect(screen, pal[v1], scale((col, row, 1, 1), tile_mag))
+    pygame.draw.rect(screen, pal[v2], scale(((col+1), row, 1, 1), tile_mag))
+
+pygame.display.flip()
+
+while running:
+    for event in pygame.event.get():
+        if event.type == pygame.QUIT:
+            running = False
