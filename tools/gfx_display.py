@@ -28,6 +28,7 @@ StatusIconHeader = namedtuple("ItemObjHeader", "width_tiles height_tiles draw_fl
 #	dc.b	$00	; ???
 #	dc.b	$00	; ???
 #	dc.b	$00	; ???
+# eachframe:
 #	dc.b	$03	; tile width
 #	dc.b	$02	; tile height
 #	dc.b	$F5	; x draw offset
@@ -35,6 +36,16 @@ StatusIconHeader = namedtuple("ItemObjHeader", "width_tiles height_tiles draw_fl
 #	dc.b	$F3	; z offset?
 #	dc.b	$02	; palette and other flags?
 #	dc.l	label_what_data	; pointer to data
+
+# status icons are just
+#	dc.b	$02	; tile width
+#	dc.b	$02	; tile height
+#	dc.b	$00	; x draw offset
+#	dc.b	$00	; y draw offset
+#	dc.b	$F0	; z offset?
+#	dc.b	$03	; palette and other flags?
+#	dc.l	label_what_data	; pointer to data
+
 
 class DrawOrder(Enum):
     ROW_MAJOR = 0
@@ -90,34 +101,40 @@ with open(args['rom'], "rb") as rom:
     total_tiles = width_tiles * height_tiles
     expected_bytes = total_tiles * 32
 
+    if (width_tiles > 0x04):
+        raise ValueError("more than four tiles wide, not valid")
+    elif (height_tiles > 0x04):
+        raise ValueError("more than four tiles high, not valid")
+
     rom.seek(header.data_addr)
     while len(decompressed_data) <= expected_bytes:
         byte = struct.unpack(">b", rom.read(1))[0];
-        print("[action: %d]" % byte)
+        #print("[action: %d]" % byte)
 
         if (byte == 0):
             nop()
-        elif (byte < -64):
+        elif (byte >= 64):
+            count = byte - 64
+            decompressed_data += (b'\xFF' * count)
+        elif (byte <= -64):
             count = -64 - byte
             decompressed_data += (b'\x00' * count)
-            print("%d copies of zero" % (count))
+            #print("%d copies of zero" % (count))
         elif (byte < 0):
             count = -byte
             byte_to_copy = rom.read(1)
-            print(len(decompressed_data))
             decompressed_data += byte_to_copy * count
-            print(len(decompressed_data))
-            print("%d copies of %02x" % (count, struct.unpack(">B", byte_to_copy)[0]))
+            #print("%d copies of %02x" % (count, struct.unpack(">B", byte_to_copy)[0]))
         else:
             count = byte
             direct_data = rom.read(count)
             decompressed_data += direct_data
-            print("%d direct: " % (count))
-            print(tuple(direct_data))
+            #print("%d direct: " % (count))
+            #print(tuple([("%02X" % ord(x)) for x in direct_data]))
 
-    #print(expected_bytes)
-    #print(len(decompressed_data))
-    #print(tuple(decompressed_data))
+    #print("expected: %d" % (expected_bytes))
+    #print("actual: %d" % (len(decompressed_data)))
+    #print(tuple([("%02X" % ord(x)) for x in decompressed_data]))
 
     # also we need palettes
     rom.seek(0x098138)
@@ -127,13 +144,11 @@ with open(args['rom'], "rb") as rom:
 
 running = True
 
-tile_mag = 16
+tile_mag = 8
 
 screen = pygame.display.set_mode((width_tiles * 8 * tile_mag, height_tiles * 8 * tile_mag))
 pygame.display.set_caption("gfx_display")
 screen.fill((255, 255, 255))
-
-#tiles = pygame.Surface((8, 8 * total_tiles), depth=4)
 
 tiles = []
 
@@ -142,31 +157,42 @@ def scale(t, s):
 
 pal = palettes[palette_index]
 
-for t in range(0, width_tiles * height_tiles):
+# allocate a bunch of tiles, then draw onto them; we'll assemble
+# them as the VDP does later. (it was easier to think about the
+# math this way)
+for t in range(0, total_tiles):
     tiles.append(pygame.Surface((8 * tile_mag, 8 * tile_mag)))
+    tiles[t].fill((123, 45, 67)) # (pal[t])
 
-# each tile is 32 bytes (64 4bpp palette entries) long
-for b in range(0, 32*width_tiles*height_tiles):
+for b in range(0, 32*total_tiles):
     value = struct.unpack(">B", decompressed_data[b])[0]
     v1 = (value & 0xF0) >> 4
     v2 = (value & 0x0F)
     if (draw_order == DrawOrder.ROW_MAJOR):
-        col = (b & 0x03)
-        row = (b >> 2)
-
-        while (row >= (height_tiles*8)):
-            row -= height_tiles*8
-            col += 4
+        row = (b % 32) / 4
+        col = b % 4
+        t = b / 32
     else:
-        col = (b >> 4)
-        row = (b & 0x0F)
+        row = b % 8
+        col = b / (8 * total_tiles)
+        t = (b % (8 * total_tiles)) / 8
 
-    col = col * 2
+    #print("tile %d (%d, %d) = %02X" % (t, col, row, value))
+    if (v1 != 0):
+        pygame.draw.rect(tiles[t], pal[v1], scale((col*2, row, 1, 1), tile_mag))
+    if (v2 != 0):
+        pygame.draw.rect(tiles[t], pal[v2], scale((col*2+1, row, 1, 1), tile_mag))
 
-    #print("(%d, %d) = %02X" % (col, row, value))
-    #print("(%d, %d) = %X" % (col+1, row, v2))
-    pygame.draw.rect(screen, pal[v1], scale((col, row, 1, 1), tile_mag))
-    pygame.draw.rect(screen, pal[v2], scale(((col+1), row, 1, 1), tile_mag))
+# Draw the tiles in VDP order; this is "down, then across"
+# VDP draw order is (for 4x4)
+#  0  4  8  C
+#  1  5  9  D
+#  2  6  A  E
+#  3  7  B  F
+for t in range(0, total_tiles):
+    row = t % height_tiles;
+    col = t / height_tiles;
+    screen.blit(tiles[t], (col * 8 * tile_mag, row * 8 * tile_mag))
 
 pygame.display.flip()
 
