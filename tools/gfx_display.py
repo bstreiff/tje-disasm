@@ -1,7 +1,5 @@
-#!/usr/bin/env python
+#!/usr/bin/env python3
 # display an image out of the rom
-#
-# this one is in python2 because debian's pygame package is python2 only
 
 import argparse
 import os
@@ -140,7 +138,7 @@ with open(args['rom'], "rb") as rom:
     rom.seek(0x098138)
     for p in range(0, 4):
         raw_pal = struct.unpack(">16H", rom.read(32));
-        palettes.append( map(cram_to_color, raw_pal) )
+        palettes.append( [cram_to_color(p) for p in raw_pal] )
 
 running = True
 
@@ -165,17 +163,17 @@ for t in range(0, total_tiles):
     tiles[t].fill((123, 45, 67)) # (pal[t])
 
 for b in range(0, 32*total_tiles):
-    value = struct.unpack(">B", decompressed_data[b])[0]
+    value = decompressed_data[b]
     v1 = (value & 0xF0) >> 4
     v2 = (value & 0x0F)
     if (draw_order == DrawOrder.ROW_MAJOR):
-        row = (b % 32) / 4
-        col = b % 4
-        t = b / 32
+        row = int((b % 32) / 4)
+        col = int(b % 4)
+        t = int(b / 32)
     else:
-        row = b % 8
-        col = b / (8 * total_tiles)
-        t = (b % (8 * total_tiles)) / 8
+        row = int(b % 8)
+        col = int(b / (8 * total_tiles))
+        t = int((b % (8 * total_tiles)) / 8)
 
     #print("tile %d (%d, %d) = %02X" % (t, col, row, value))
     if (v1 != 0):
@@ -190,8 +188,8 @@ for b in range(0, 32*total_tiles):
 #  2  6  A  E
 #  3  7  B  F
 for t in range(0, total_tiles):
-    row = t % height_tiles;
-    col = t / height_tiles;
+    row = int(t % height_tiles);
+    col = int(t / height_tiles);
     screen.blit(tiles[t], (col * 8 * tile_mag, row * 8 * tile_mag))
 
 pygame.display.flip()
