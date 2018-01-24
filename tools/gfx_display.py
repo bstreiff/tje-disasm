@@ -7,6 +7,7 @@ import pygame
 import struct
 from collections import namedtuple
 from enum import Enum
+from rle import RleDecompressor
 
 parser = argparse.ArgumentParser(description='Graphic Viewer')
 parser.add_argument('-r', '--rom', help='Source ROM', required=True)
@@ -105,34 +106,7 @@ with open(args['rom'], "rb") as rom:
         raise ValueError("more than four tiles high, not valid")
 
     rom.seek(header.data_addr)
-    while len(decompressed_data) <= expected_bytes:
-        byte = struct.unpack(">b", rom.read(1))[0];
-        #print("[action: %d]" % byte)
-
-        if (byte == 0):
-            nop()
-        elif (byte >= 64):
-            count = byte - 64
-            decompressed_data += (b'\xFF' * count)
-        elif (byte <= -64):
-            count = -64 - byte
-            decompressed_data += (b'\x00' * count)
-            #print("%d copies of zero" % (count))
-        elif (byte < 0):
-            count = -byte
-            byte_to_copy = rom.read(1)
-            decompressed_data += byte_to_copy * count
-            #print("%d copies of %02x" % (count, struct.unpack(">B", byte_to_copy)[0]))
-        else:
-            count = byte
-            direct_data = rom.read(count)
-            decompressed_data += direct_data
-            #print("%d direct: " % (count))
-            #print(tuple([("%02X" % ord(x)) for x in direct_data]))
-
-    #print("expected: %d" % (expected_bytes))
-    #print("actual: %d" % (len(decompressed_data)))
-    #print(tuple([("%02X" % ord(x)) for x in decompressed_data]))
+    decompressed_data = RleDecompressor.decompress(rom, expected_bytes)
 
     # also we need palettes
     rom.seek(0x098138)
