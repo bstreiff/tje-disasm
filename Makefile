@@ -1,5 +1,6 @@
 SOURCE_ROM=tjae_rev02.bin
-VASM=vasmm68k_mot -m68000 -spaces -maxerrors=0
+GAME_REVISION:=$(shell tools/rominfo.py -r $(SOURCE_ROM))
+VASM=vasmm68k_mot -m68000 -spaces -maxerrors=0 -DGAME_REVISION=$(GAME_REVISION)
 OBJDUMP=m68k-linux-gnu-objdump
 OBJDUMP_DISASSEMBLE=$(OBJDUMP) -D -b binary -m m68k:68000
 OBJDUMP_GETSYMS=$(OBJDUMP) -t
@@ -52,7 +53,7 @@ $(TARGET_SYMASM): $(TARGET_SYMLIST)
 	@$(PYTHON3) build_symtab.py -t $(TARGET_SYMLIST) > $(TARGET_SYMASM)
 
 $(TARGET_ROM): $(SOURCE_ASM) $(SOURCE_HASH)
-	@$(VASM) -Fbin -Iinclude -o $(TARGET_ROM) $(SOURCE_ASM)
+	$(VASM) -Fbin -Iinclude -o $(TARGET_ROM) $(SOURCE_ASM)
 	@$(OBJDUMP_DISASSEMBLE) $(TARGET_ROM) > $(TARGET_DUMP)
 	@$(HASH) $(TARGET_ROM) | awk '{print $$1}' > $(TARGET_HASH)
 	@diff -q $(SOURCE_HASH) $(TARGET_HASH)
