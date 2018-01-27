@@ -5,3 +5,4 @@ tjae_rev*.bin
 # generated files
 obj
 resources
+__pycache__
