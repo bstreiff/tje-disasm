@@ -36,6 +36,8 @@ WORLD_TYPE_FIXED	equ	$01
 ; $FF916A - Level 2, etc...
 LEVEL_SEEDS		equ	$FF9136		; word[26]
 
+RNG_STATE		equ	$FF91E2		; long
+
 ; This is a mask of map tiles that have been uncovered. Each level has
 ; a 8x7 map, so each level occupies 7 bytes.
 DISCOVERED_MAP_MASK	equ	$FF91F3		; byte[7][25]
