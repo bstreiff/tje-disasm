@@ -17,7 +17,8 @@ TARGET_DUMP := $(OBJDIR)/target.dump.txt
 TARGET_HASH := $(OBJDIR)/target.hash.txt
 TARGET_ELF := $(OBJDIR)/target.elf
 TARGET_SYMLIST := $(OBJDIR)/target.symlist.txt
-TARGET_SYMASM := $(OBJDIR)/target.symbols.asm
+TARGET_SYMASM := $(OBJDIR)/include/basegame_gen.S
+TARGET_HEADER := $(OBJDIR)/include/basegame_gen.h
 
 OBJS := \
 	$(SOURCE_DUMP) \
@@ -26,13 +27,15 @@ OBJS := \
 	$(TARGET_DUMP) \
 	$(TARGET_HASH) \
 	$(TARGET_SYMASM) \
+	$(TARGET_HEADER) \
 
-all: $(TARGET_ROM) $(TARGET_SYMASM)
+all: $(OBJS)
 
 $(OBJS): | $(OBJDIR)
 
 $(OBJDIR):
 	@mkdir -p $(OBJDIR)
+	@mkdir -p $(OBJDIR)/include
 
 clean:
 	rm -rf $(OBJDIR)/
@@ -49,11 +52,14 @@ $(TARGET_ELF): $(SOURCE_ASM)
 $(TARGET_SYMLIST): $(TARGET_ELF)
 	@$(OBJDUMP_GETSYMS) $(TARGET_ELF) | tail -n +5 > $(TARGET_SYMLIST)
 
-$(TARGET_SYMASM): $(TARGET_SYMLIST)
-	@$(PYTHON3) build_symtab.py -t $(TARGET_SYMLIST) > $(TARGET_SYMASM)
-
 $(TARGET_ROM): $(SOURCE_ASM) $(SOURCE_HASH)
 	$(VASM) -Fbin -Iinclude -o $(TARGET_ROM) $(SOURCE_ASM)
 	@$(OBJDUMP_DISASSEMBLE) $(TARGET_ROM) > $(TARGET_DUMP)
 	@$(HASH) $(TARGET_ROM) | awk '{print $$1}' > $(TARGET_HASH)
 	@diff -q $(SOURCE_HASH) $(TARGET_HASH)
+
+$(TARGET_SYMASM): $(TARGET_SYMLIST)
+	@$(PYTHON3) tools/build_symtab.py $< > $@
+
+$(TARGET_HEADER): $(SOURCE_ASM)
+	@$(PYTHON3) tools/get_header_comments.py $< > $@
