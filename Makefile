@@ -19,6 +19,7 @@ TARGET_ELF := $(OBJDIR)/target.elf
 TARGET_SYMLIST := $(OBJDIR)/target.symlist.txt
 TARGET_SYMASM := $(OBJDIR)/include/basegame_gen.S
 TARGET_HEADER := $(OBJDIR)/include/basegame_gen.h
+TARGET_RAM_HEADER := $(OBJDIR)/include/basegame_ram_gen.h
 
 OBJS := \
 	$(SOURCE_DUMP) \
@@ -28,6 +29,7 @@ OBJS := \
 	$(TARGET_HASH) \
 	$(TARGET_SYMASM) \
 	$(TARGET_HEADER) \
+	$(TARGET_RAM_HEADER) \
 
 all: $(OBJS)
 
@@ -63,3 +65,7 @@ $(TARGET_SYMASM): $(TARGET_SYMLIST)
 
 $(TARGET_HEADER): $(SOURCE_ASM)
 	@$(PYTHON3) tools/get_header_comments.py $< > $@
+
+$(TARGET_RAM_HEADER): include/tjae_memory.asm
+	@$(PYTHON3) tools/get_header_comments.py $< > $@
+
