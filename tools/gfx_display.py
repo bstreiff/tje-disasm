@@ -8,6 +8,7 @@ import struct
 from enum import Enum
 from rle import RleDecompressor
 from sprite import SpriteFlags, Sprite, MetaSprite
+from sprite import Palette
 
 parser = argparse.ArgumentParser(description='Graphic Viewer')
 parser.add_argument('-r', '--rom', help='Source ROM', required=True)
@@ -16,28 +17,16 @@ args = vars(parser.parse_args())
 
 addr = int(args['addr'], 0)
 
-width_tiles = 0
-height_tiles = 0
-decompressed_data = b''
 palettes = []
-palette_index = 0
-
-# turn a CRAM value into a (r,g,b) tuple
-def cram_to_color(val):
-    blue =  (val & 0x0E00) >> 9
-    green = (val & 0x00E0) >> 5
-    red =   (val & 0x000E) >> 1
-    return (red << 5, green << 5, blue << 5)
 
 with open(args['rom'], "rb") as rom:
     rom.seek(addr)
     metaspr = MetaSprite.extract_from(rom)
 
     # also we need palettes
-    rom.seek(0x098138)
     for p in range(0, 4):
-        raw_pal = struct.unpack(">16H", rom.read(32));
-        palettes.append( [cram_to_color(p) for p in raw_pal] )
+        rom.seek(0x098138 + 32*p)
+        palettes.append( Palette.extract_from(rom) )
 
 running = True
 
@@ -80,9 +69,9 @@ for b in range(0, 32*total_tiles):
 
     #print("tile %d (%d, %d) = %02X" % (t, col, row, value))
     if (v1 != 0):
-        pygame.draw.rect(tiles[t], pal[v1], scale((col*2, row, 1, 1), tile_mag))
+        pygame.draw.rect(tiles[t], pal[v1].rgb(), scale((col*2, row, 1, 1), tile_mag))
     if (v2 != 0):
-        pygame.draw.rect(tiles[t], pal[v2], scale((col*2+1, row, 1, 1), tile_mag))
+        pygame.draw.rect(tiles[t], pal[v2].rgb(), scale((col*2+1, row, 1, 1), tile_mag))
 
 # Draw the tiles in VDP order; this is "down, then across"
 # VDP draw order is (for 4x4)

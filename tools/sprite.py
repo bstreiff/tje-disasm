@@ -63,3 +63,27 @@ class MetaSprite:
             sprites.append(Sprite.extract_from(rom))
 
         return cls(sprites)
+
+# A PaletteEntry is a single CRAM (color ram) value
+class PaletteEntry:
+    def __init__(self, cram):
+        self.cram = cram
+
+    def rgb(self):
+        blue =  (self.cram & 0x0E00) >> 4
+        green = (self.cram & 0x00E0)
+        red =   (self.cram & 0x000E) << 4
+        return (red, green, blue)
+
+# A Paleete is a collection of 32 palette entries
+class Palette:
+    def __init__(self, entries=[]):
+        self.entries = entries
+
+    def __getitem__(self, key):
+        return self.entries[key]
+
+    @classmethod
+    def extract_from(cls, rom):
+        values = struct.unpack(">16H", rom.read(32));
+        return cls([PaletteEntry(i) for i in values])
