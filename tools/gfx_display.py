@@ -13,9 +13,11 @@ from sprite import Palette
 parser = argparse.ArgumentParser(description='Graphic Viewer')
 parser.add_argument('-r', '--rom', help='Source ROM', required=True)
 parser.add_argument('-a', '--addr', help='Address', required=True)
+parser.add_argument('-i', '--index', help='Metasprite index')
 args = vars(parser.parse_args())
 
 addr = int(args['addr'], 0)
+index = int(args['index'] or '0')
 
 palettes = []
 
@@ -32,7 +34,7 @@ running = True
 
 tile_mag = 8
 
-sprite = metaspr.sprites[0]
+sprite = metaspr.sprites[index]
 
 total_tiles = sprite.width * sprite.height
 
@@ -54,18 +56,15 @@ for t in range(0, total_tiles):
     tiles.append(pygame.Surface((8 * tile_mag, 8 * tile_mag)))
     tiles[t].fill((123, 45, 67)) # (pal[t])
 
+print(sprite.flags)
+
 for b in range(0, 32*total_tiles):
     value = sprite.data[b]
     v1 = (value & 0xF0) >> 4
     v2 = (value & 0x0F)
-    if (sprite.flags == SpriteFlags.COLUMN_MAJOR_DRAW):
-        row = int((b % 32) / 4)
-        col = int(b % 4)
-        t = int(b / 32)
-    else:
-        row = int(b % 8)
-        col = int(b / (8 * total_tiles))
-        t = int((b % (8 * total_tiles)) / 8)
+    row = int((b % 32) / 4)
+    col = int(b % 4)
+    t = int(b / 32)
 
     #print("tile %d (%d, %d) = %02X" % (t, col, row, value))
     if (v1 != 0):

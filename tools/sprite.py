@@ -1,11 +1,11 @@
 #!/usr/bin/env python3
 
 import struct
-from rle import RleDecompressor
+from rle import InterleavedRleDecompressor, RleDecompressor
 
 class SpriteFlags:
-    COLUMN_MAJOR_DRAW = 0x80
-    UNCOMPRESSED = 0x40
+    COMPRESSION_INTERLEAVED = 0x80
+    COMPRESSION_NONE = 0x40
 
 # A Sprite is a single hardware sprite.
 class Sprite:
@@ -37,7 +37,9 @@ class Sprite:
             raise ValueError("data address lies outside rom, not valid")
 
         rom.seek(data_address)
-        if ((flags & SpriteFlags.UNCOMPRESSED) == SpriteFlags.UNCOMPRESSED):
+        if flags & SpriteFlags.COMPRESSION_INTERLEAVED:
+            data = InterleavedRleDecompressor.decompress(rom, expected_bytes)
+        elif flags & SpriteFlags.COMPRESSION_NONE:
             data = rom.read(expected_byte)
         else:
             data = RleDecompressor.decompress(rom, expected_bytes)

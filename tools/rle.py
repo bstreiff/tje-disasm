@@ -1,6 +1,74 @@
 #!/usr/bin/env python3
 
 import io
+import struct
+
+class InterleavedRleDecompressor:
+    def decompress(data, max_length=0):
+        if (type(data) is bytes or type(data) is bytearray):
+           data = io.BytesIO(data)
+
+        decompressed = bytearray(max_length)
+        outpos = 0
+        decompressed_bytes = 0
+
+        for s in range(0, 4):
+            outpos = s
+            decompressed_bytes = 0
+
+            while decompressed_bytes < int(max_length / 4):
+                readvalue = data.read(1)
+                token = struct.unpack(">b", readvalue)[0]
+
+                if token < 0:
+                    # token is between 0x80 and 0xFF
+                    if token & 0x40:	# test bit 6
+                        # token is between 0xC0 and 0xFF
+                        val = struct.unpack(">B", data.read(1))[0]
+                    else:
+                        # token is between 0x80 and 0xBF
+                        val = 0
+                        token = token | 0x40
+                    token = -token
+
+                    for i in range(0, token):
+                       decompressed[outpos] = val
+                       outpos += 4
+                else:
+                    # token is between 0x00 and 0x7F
+                    if token & 0x40:	# test bit 6
+                        # token is between 0x40 and 0x7F
+                        if token & 0x20:	# test bit 5
+                            # token is between 0x40 and 0x5F
+                            val = struct.unpack(">B", data.read(1))[0]
+                            swapval = ((val << 4) & 0xF0) | ((val >> 4) & 0x0F)
+                            token = token & 0x1F
+                            for i in range(0, int(token / 2) - 1):
+                                decompressed[outpos] = val
+                                decompressed[outpos+4] = swapval
+                                outpos += 8
+                            if token % 2 == 0:
+                                decompressed[outpos] = val
+                                outpos += 4
+                        else:
+                            # token is between 0x60 and 0x7F
+                            val = 0xFF
+                            token = token & 0x1F
+                            for i in range(0, token):
+                                decompressed[outpos] = val
+                                outpos += 4
+                    else:
+                        # token is between 0x00 and 0x3F
+                        for i in range(0, token):
+                            val = struct.unpack(">B", data.read(1))[0]
+                            decompressed[outpos] = val
+                            outpos += 4
+
+                decompressed_bytes += token
+
+        return bytes(decompressed)
+
+
 
 class RleDecompressor:
     def decompress(data, max_length=0):
@@ -11,12 +79,12 @@ class RleDecompressor:
 
         while max_length != 0 and len(decompressed) <= max_length:
             if data.peek(1) == 0:
-               break
+                break
             token = data.read(1)[0]
 
             # need this to be a signed byte to make the conditionals work out
             if (token >= 128):
-               token = -(256 - token);
+                token = -(256 - token);
 
             if (token <= -64):
                 count = -64 - token
