@@ -9,12 +9,22 @@ class SpriteFlags:
 
 # A Sprite is a single hardware sprite.
 class Sprite:
-    def __init__(self, width=0, height=0, offset=(0,0,0), flags=0, data=b''):
+    def __init__(self, name=None, width=0, height=0, offset=(0,0,0), flags=0, data=b''):
+        self.name = name
         self.width = width
         self.height = height
         self.offset = offset
         self.flags = flags
         self.data = data
+        self.name = name
+
+    def write_asm(self, io):
+        if self.name:
+            io.write("%s:\n" % (self.name))
+        io.write("\tdc.b\t%u, %u\n" % (self.width, self.height))
+        io.write("\tdc.b\t%d, %d, %d\n" % (self.offset[0], self.offset[1], self.offset[2]))
+        io.write("\tdc.b\t%02X\n" % self.flags)
+        io.write("\tdc.l\t%s_data\n" % self.name)
 
     @classmethod
     def extract_from(cls, rom):
@@ -24,6 +34,7 @@ class Sprite:
         offset = (header[2], header[3], header[4])
         flags = header[5]
         data_address = header[6]
+        name = "loc_%08X" % rom.tell()
 
         total_tiles = width * height
         # 8x8 at 4bpp == 32 bytes
@@ -40,31 +51,44 @@ class Sprite:
         if flags & SpriteFlags.COMPRESSION_INTERLEAVED:
             data = InterleavedRleDecompressor.decompress(rom, expected_bytes)
         elif flags & SpriteFlags.COMPRESSION_NONE:
-            data = rom.read(expected_byte)
+            data = rom.read(expected_bytes)
         else:
             data = RleDecompressor.decompress(rom, expected_bytes)
 
-        return cls(width, height, offset, flags, data)
+        return cls(name, width, height, offset, flags, data)
 
 
 # A MetaSprite is a collection of one or more sprites
 # used to build up a larger apparent sprite
 class MetaSprite:
-    def __init__(self, sprites=[]):
+    def __init__(self, name=None, sprites=[]):
+        self.name = name
         self.sprites = sprites
+
+    def write_asm(self, io):
+        for s in self.sprites:
+            s.write_asm(io)
+
+        if self.name:
+            io.write("%s:\n" % (self.name))
+        io.write("\tdc.b\t%u\n" % len(self.sprites) )
+        io.write("\tdc.b\t%d, %d, %d\t\n" % (0,0,0))
+        for s in self.sprites:
+            io.write("\tdc.l\t%s\n" % s.name)
 
     @classmethod
     def extract_from(cls, rom):
         header = struct.unpack(">bbbb", rom.read(4))
         sprite_count = header[0]
         sprites = []
+        name = "loc_%08X" % rom.tell()
 
         address = rom.tell()
         for s in range(0, sprite_count):
             rom.seek(address + s*10)
             sprites.append(Sprite.extract_from(rom))
 
-        return cls(sprites)
+        return cls(name, sprites)
 
 # A PaletteEntry is a single CRAM (color ram) value
 class PaletteEntry:
