@@ -6,6 +6,8 @@ class ResourceKind(Enum):
     SPRITE_DATA = 2
     METASPRITE_HEADER = 3
     METASPRITE_LIST = 4
+    Z80_BINARY = 5
+    RAW_IMAGE = 6
 
 class Resource:
     def __init__(self, kind, address, length):
