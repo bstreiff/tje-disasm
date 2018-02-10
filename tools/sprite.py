@@ -2,6 +2,7 @@
 
 import struct
 from rle import InterleavedRleDecompressor, RleDecompressor
+from resource import Resource, ResourceKind
 
 class SpriteFlags:
     COMPRESSION_INTERLEAVED = 0x80
@@ -9,7 +10,7 @@ class SpriteFlags:
 
 # A Sprite is a single hardware sprite.
 class Sprite:
-    def __init__(self, name=None, width=0, height=0, offset=(0,0,0), flags=0, data=b''):
+    def __init__(self, name=None, width=0, height=0, offset=(0,0,0), flags=0, data=b'', address=0, data_address=0, zlength=0):
         self.name = name
         self.width = width
         self.height = height
@@ -17,6 +18,10 @@ class Sprite:
         self.flags = flags
         self.data = data
         self.name = name
+        self.header_resource = Resource(ResourceKind.SPRITE_HEADER,
+                                        address, 10)
+        self.data_resource = Resource(ResourceKind.SPRITE_DATA,
+                                      data_address, zlength)
 
     def write_asm(self, io):
         if self.name:
@@ -34,7 +39,8 @@ class Sprite:
         offset = (header[2], header[3], header[4])
         flags = header[5]
         data_address = header[6]
-        name = "loc_%08X" % rom.tell()
+        address = rom.tell()
+        name = "loc_%08X" % address
 
         total_tiles = width * height
         # 8x8 at 4bpp == 32 bytes
@@ -46,6 +52,10 @@ class Sprite:
             raise ValueError("more than four tiles high, not valid")
         elif (data_address >= 0x0FFFFF):
             raise ValueError("data address lies outside rom, not valid")
+        elif (data_address <= 0x200):
+            raise ValueError("data address in cart header, not valid")
+        elif not abs(data_address - address) < 0x2000:
+            raise ValueError("data address is quite far, seems fishy")
 
         rom.seek(data_address)
         if flags & SpriteFlags.COMPRESSION_INTERLEAVED:
@@ -54,16 +64,23 @@ class Sprite:
             data = rom.read(expected_bytes)
         else:
             data = RleDecompressor.decompress(rom, expected_bytes)
+        zlength = rom.tell() - data_address
+        if zlength % 2 == 1:
+            zlength += 1
+        if zlength == 0:
+            raise ValueError("zero-length sprite is not valid")
 
-        return cls(name, width, height, offset, flags, data)
+        return cls(name, width, height, offset, flags, data, address, data_address, zlength)
 
 
 # A MetaSprite is a collection of one or more sprites
 # used to build up a larger apparent sprite
 class MetaSprite:
-    def __init__(self, name=None, sprites=[]):
+    def __init__(self, name=None, sprites=[], address=0):
         self.name = name
         self.sprites = sprites
+        self.resource = Resource(ResourceKind.METASPRITE_HEADER,
+                                 address, 4+(10*len(self.sprites)))
 
     def write_asm(self, io):
         for s in self.sprites:
@@ -73,13 +90,16 @@ class MetaSprite:
             io.write("%s:\n" % (self.name))
         io.write("\tdc.b\t%u\n" % len(self.sprites) )
         io.write("\tdc.b\t%d, %d, %d\t\n" % (0,0,0))
-        for s in self.sprites:
-            io.write("\tdc.l\t%s\n" % s.name)
 
     @classmethod
     def extract_from(cls, rom):
+        start_address = rom.tell()
         header = struct.unpack(">bbbb", rom.read(4))
         sprite_count = header[0]
+
+        if sprite_count == 0:
+            raise ValueError("metasprite must contain at least one sprite")
+
         sprites = []
         name = "loc_%08X" % rom.tell()
 
@@ -88,7 +108,10 @@ class MetaSprite:
             rom.seek(address + s*10)
             sprites.append(Sprite.extract_from(rom))
 
-        return cls(name, sprites)
+        if len(sprites) != sprite_count:
+            raise ValueError("didn't extract sprites properly")
+
+        return cls(name, sprites, start_address)
 
 # A PaletteEntry is a single CRAM (color ram) value
 class PaletteEntry:
