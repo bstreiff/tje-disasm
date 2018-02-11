@@ -31,6 +31,29 @@ class Sprite:
         io.write("\tdc.b\t%02X\n" % self.flags)
         io.write("\tdc.l\t%s_data\n" % self.name)
 
+    # Generate a series of (x, y, index) tuples that describe
+    # how to draw this sprite onto a canvas of size width*8, height*8
+    def pixel_generator(self):
+        total_tiles = self.width * self.height
+        for b in range(0, 32*total_tiles):
+            value = self.data[b]
+            val1 = (value & 0xF0) >> 4
+            val2 = (value & 0x0F)
+            # This is the position within this VDP tile
+            sub_y = int((b % 32) / 4)
+            sub_x = int(b % 4)
+            # In VDP draw order, tiles are "down, then across"
+            # In other words, given tiles 0..F (4x4), we have
+            #   0  4  8  C
+            #   1  5  9  D
+            #   2  6  A  E
+            #   3  7  B  F
+            tile = int(b / 32)
+            x = (int(tile / self.height)*4 + sub_x) * 2
+            y = int(tile % self.height)*8 + sub_y
+            yield (x, y, val1)
+            yield (x+1, y, val2)
+
     @classmethod
     def extract_from(cls, rom):
         header = struct.unpack(">BBbbbBIxx", rom.read(12))
