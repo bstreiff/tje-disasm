@@ -32,56 +32,38 @@ with open(args['rom'], "rb") as rom:
 
 running = True
 
-tile_mag = 8
-
 sprite = metaspr.sprites[index]
 
-total_tiles = sprite.width * sprite.height
-
-screen = pygame.display.set_mode((sprite.width * 8 * tile_mag, sprite.height * 8 * tile_mag))
+screen = pygame.display.set_mode((sprite.width * 8, sprite.height * 8))
 pygame.display.set_caption("gfx_display")
-screen.fill((255, 255, 255))
+screen.fill((123, 45, 67))
 
 tiles = []
 
-def scale(t, s):
-    return tuple([s*x for x in t])
-
 pal = palettes[sprite.flags & 0x3]
 
-# allocate a bunch of tiles, then draw onto them; we'll assemble
-# them as the VDP does later. (it was easier to think about the
-# math this way)
-for t in range(0, total_tiles):
-    tiles.append(pygame.Surface((8 * tile_mag, 8 * tile_mag)))
-    tiles[t].fill((123, 45, 67)) # (pal[t])
-
-print(sprite.flags)
-
-for b in range(0, 32*total_tiles):
+for b in range(0, 32*sprite.width*sprite.height):
     value = sprite.data[b]
     v1 = (value & 0xF0) >> 4
     v2 = (value & 0x0F)
-    row = int((b % 32) / 4)
-    col = int(b % 4)
+    # Get the position within this VDP tile
+    sub_y = int((b % 32) / 4)
+    sub_x = int(b % 4)
+
+    # Draw the tiles in VDP order; this is "down, then across"
+    # VDP draw order is (for 4x4)
+    #  0  4  8  C
+    #  1  5  9  D
+    #  2  6  A  E
+    #  3  7  B  F
     t = int(b / 32)
+    x = int(t / sprite.height)*4 + sub_x
+    y = int(t % sprite.height)*8 + sub_y
 
-    #print("tile %d (%d, %d) = %02X" % (t, col, row, value))
     if (v1 != 0):
-        pygame.draw.rect(tiles[t], pal[v1].rgb(), scale((col*2, row, 1, 1), tile_mag))
+        pygame.draw.rect(screen, pal[v1].rgb(), (x*2, y, 1, 1))
     if (v2 != 0):
-        pygame.draw.rect(tiles[t], pal[v2].rgb(), scale((col*2+1, row, 1, 1), tile_mag))
-
-# Draw the tiles in VDP order; this is "down, then across"
-# VDP draw order is (for 4x4)
-#  0  4  8  C
-#  1  5  9  D
-#  2  6  A  E
-#  3  7  B  F
-for t in range(0, total_tiles):
-    row = int(t % sprite.height);
-    col = int(t / sprite.height);
-    screen.blit(tiles[t], (col * 8 * tile_mag, row * 8 * tile_mag))
+        pygame.draw.rect(screen, pal[v2].rgb(), (x*2+1, y, 1, 1))
 
 pygame.display.flip()
 
