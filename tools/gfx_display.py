@@ -13,11 +13,9 @@ from sprite import Palette
 parser = argparse.ArgumentParser(description='Graphic Viewer')
 parser.add_argument('-r', '--rom', help='Source ROM', required=True)
 parser.add_argument('-a', '--addr', help='Address', required=True)
-parser.add_argument('-i', '--index', help='Metasprite index')
 args = vars(parser.parse_args())
 
 addr = int(args['addr'], 0)
-index = int(args['index'] or '0')
 
 palettes = []
 
@@ -32,18 +30,18 @@ with open(args['rom'], "rb") as rom:
 
 running = True
 
-sprite = metaspr.sprites[index]
-
-screen = pygame.display.set_mode((sprite.width * 8, sprite.height * 8))
+screen = pygame.display.set_mode((200, 200))
 pygame.display.set_caption("gfx_display")
 screen.fill((123, 45, 67))
 
-pal = palettes[sprite.flags & 0x3]
-
-for pixel in sprite.pixel_generator():
-    (x, y, index) = pixel
-    if index != 0:
-        pygame.draw.rect(screen, pal[index].rgb(), (x, y, 1, 1))
+for s in metaspr.sprites:
+    pal = palettes[s.flags & 0x3]
+    for pixel in s.pixel_generator():
+        (x, y, index) = pixel
+        x += s.offset[0] + 100
+        y += s.offset[1] + 100
+        if index != 0:
+            pygame.draw.rect(screen, pal[index].rgb(), (x, y, 1, 1))
 
 pygame.display.flip()
 
