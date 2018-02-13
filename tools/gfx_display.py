@@ -26,10 +26,13 @@ with open(args['rom'], "rb") as rom:
 
 running = True
 
-screen = pygame.display.set_mode((200, 200))
+bounds = metaspr.bounds()
+
+screen = pygame.display.set_mode((bounds[2], bounds[3]))
 pygame.display.set_caption("gfx_display")
 screen.fill((0, 126, 194))
-metaspr.draw_to_surface(screen, palettes, (100, 100))
+metaspr.draw_to_surface(screen, palettes, (-bounds[0], -bounds[1]))
+
 pygame.display.flip()
 
 while running:

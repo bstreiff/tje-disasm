@@ -1,12 +1,43 @@
 #!/usr/bin/env python3
 
 import struct
+from functools import reduce
 from rle import InterleavedRleDecompressor, RleDecompressor
 from resource import Resource, ResourceKind
 
 class SpriteFlags:
     COMPRESSION_INTERLEAVED = 0x80
     COMPRESSION_NONE = 0x40
+
+class Rect:
+    def __init__(self, ival=None):
+        if ival == None:
+            self.val = (0,0,0,0)
+        else:
+            self.val = ival
+
+    def __getitem__(self, i):
+        return self.val[i]
+
+    def __setitem__(self, i, v):
+        self.val[i] = v
+
+    def __len__(self):
+        return len(self.val)
+
+    def __str__(self):
+        return self.val.__str__()
+
+    def move(self, x, y):
+        return Rect((self[0] + x, self[1] + y, self[2], self[3]))
+
+    # return a new rect that is the union of self and other
+    def union(self, other):
+        a = (self[0], self[1], self[2]+self[0], self[3]+self[1])
+        b = (other[0], other[1], other[2]+other[0], other[3]+other[1])
+        u = ( min(a[0], b[0]), min(a[1], b[1]),
+              max(a[2], b[2]), max(a[3], b[3]) )
+        return Rect((u[0], u[1], u[2]-u[0], u[3]-u[1]))
 
 # A Sprite is a single hardware sprite.
 class Sprite:
@@ -33,6 +64,9 @@ class Sprite:
 
     def palette_id(self):
         return self.flags & 0x3
+
+    def bounds(self):
+        return Rect((self.offset[0], self.offset[1], self.width*8, self.height*8))
 
     # Generate a series of (x, y, index) tuples that describe
     # how to draw this sprite onto a canvas of size width*8, height*8
@@ -113,6 +147,11 @@ class MetaSprite:
             io.write("%s:\n" % (self.name))
         io.write("\tdc.b\t%u\n" % len(self.sprites) )
         io.write("\tdc.b\t%d, %d, %d\t\n" % (0,0,0))
+
+    def bounds(self):
+        b = self.sprites[0].bounds()
+        return reduce((lambda x, y: Rect.union(x, y)),
+                      [s.bounds() for s in self.sprites])
 
     def draw_to_surface(self, surface, palette_group, offset):
         surface.lock()
