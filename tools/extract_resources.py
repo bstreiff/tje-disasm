@@ -6,10 +6,11 @@ import os
 import configparser
 import pygame
 import struct
+from functools import reduce
 from collections import namedtuple
 from genesisrom import GenesisRomHeader
 from resource import Resource, ResourceKind
-from sprite import MetaSprite, Sprite, Palette
+from sprite import MetaSprite, Sprite, Palette, Rect
 
 parser = argparse.ArgumentParser(description='Resource Extractor')
 parser.add_argument('rsrccfg', help='Resource Config File')
@@ -50,20 +51,25 @@ def extract_metasprite_list(resource_name, rom, resource, palette_name):
         for mspr in msprs:
             out.write("\tdc.l\t%s\n" % mspr.name);
 
-    palette_group = palettes[palette_name]
     for mindex, mspr in enumerate(msprs):
         with open("resources/" + mspr.name + ".asm", "w") as out:
             mspr.write_asm(out)
 
-        # figure out where this should go
-        if EXPORT_PNGS:
-           surface = pygame.Surface((200, 200), depth=24)
-           surface.set_colorkey((0,126,194))
-           surface.fill((0,126,194))
-           mspr.draw_to_surface(surface, palette_group, (100, 100))
-           tmpname = "%07d_%02d_%s" % (resource.address, mindex, mspr.name)
-           pygame.image.save(surface, "resources/" + tmpname + ".png")
+    if not EXPORT_PNGS:
+        palette_group = palettes[palette_name]
+        msprbounds = msprs[0].bounds()
+        msprbounds = reduce((lambda x, y: Rect.union(x, y)),
+                            [m.bounds() for m in msprs])
 
+        for mindex, mspr in enumerate(msprs):
+            # figure out where this should go
+            pos = (-msprbounds[0], -msprbounds[1])
+            surface = pygame.Surface((msprbounds[2], msprbounds[3]), depth=24)
+            surface.set_colorkey((0,126,194))
+            surface.fill((0,126,194))
+            mspr.draw_to_surface(surface, palette_group, pos)
+            tmpname = "%07d_%02d_%s" % (resource.address, mindex, mspr.name)
+            pygame.image.save(surface, "resources/" + tmpname + ".png")
 
 
 def extract_resource(rom, name, cfgsect):
