@@ -31,6 +31,9 @@ class Sprite:
         io.write("\tdc.b\t%02X\n" % self.flags)
         io.write("\tdc.l\t%s_data\n" % self.name)
 
+    def palette_id(self):
+        return self.flags & 0x3
+
     # Generate a series of (x, y, index) tuples that describe
     # how to draw this sprite onto a canvas of size width*8, height*8
     def pixel_generator(self):
@@ -106,13 +109,22 @@ class MetaSprite:
                                  address, 4+(10*len(self.sprites)))
 
     def write_asm(self, io):
-        for s in self.sprites:
-            s.write_asm(io)
-
         if self.name:
             io.write("%s:\n" % (self.name))
         io.write("\tdc.b\t%u\n" % len(self.sprites) )
         io.write("\tdc.b\t%d, %d, %d\t\n" % (0,0,0))
+
+    def draw_to_surface(self, surface, palette_group, offset):
+        surface.lock()
+        for s in self.sprites:
+            pal = palette_group[s.palette_id()]
+            for pixel in s.pixel_generator():
+                (x, y, index) = pixel
+                x += s.offset[0] + offset[0]
+                y += s.offset[1] + offset[1]
+                if index != 0:
+                    surface.set_at((x, y), pal[index])
+        surface.unlock()
 
     @classmethod
     def extract_from(cls, rom):
@@ -138,14 +150,22 @@ class MetaSprite:
 
 # A PaletteEntry is a single CRAM (color ram) value
 class PaletteEntry:
-    def __init__(self, cram):
+    def __init__(self, cram, transparent=False):
         self.cram = cram
+        self.transparent = transparent
 
     def rgb(self):
         blue =  (self.cram & 0x0E00) >> 4
         green = (self.cram & 0x00E0)
         red =   (self.cram & 0x000E) << 4
         return (red, green, blue)
+
+    def rgba(self):
+        rgb = self.rgb()
+        if self.transparent:
+            return (1, 1, 1, 0x00)
+        else:
+            return (rgb[0], rgb[1], rgb[2], 0xFF)
 
 # A Paleete is a collection of 32 palette entries
 class Palette:
@@ -155,7 +175,13 @@ class Palette:
     def __getitem__(self, key):
         return self.entries[key]
 
+    def rgb(self):
+        return [x.rgb() for x in self.entries]
+
+    def rgba(self):
+        return [x.rgba() for x in self.entries]
+
     @classmethod
     def extract_from(cls, rom):
         values = struct.unpack(">16H", rom.read(32));
-        return cls([PaletteEntry(i) for i in values])
+        return cls([PaletteEntry(i, i == 0) for i in values])

@@ -4,11 +4,7 @@
 import argparse
 import os
 import pygame
-import struct
-from enum import Enum
-from rle import RleDecompressor
-from sprite import SpriteFlags, Sprite, MetaSprite
-from sprite import Palette
+from sprite import MetaSprite, Palette
 
 parser = argparse.ArgumentParser(description='Graphic Viewer')
 parser.add_argument('-r', '--rom', help='Source ROM', required=True)
@@ -26,23 +22,14 @@ with open(args['rom'], "rb") as rom:
     # also we need palettes
     for p in range(0, 4):
         rom.seek(0x098138 + 32*p)
-        palettes.append( Palette.extract_from(rom) )
+        palettes.append( Palette.extract_from(rom).rgb() )
 
 running = True
 
 screen = pygame.display.set_mode((200, 200))
 pygame.display.set_caption("gfx_display")
-screen.fill((123, 45, 67))
-
-for s in metaspr.sprites:
-    pal = palettes[s.flags & 0x3]
-    for pixel in s.pixel_generator():
-        (x, y, index) = pixel
-        x += s.offset[0] + 100
-        y += s.offset[1] + 100
-        if index != 0:
-            pygame.draw.rect(screen, pal[index].rgb(), (x, y, 1, 1))
-
+screen.fill((0, 126, 194))
+metaspr.draw_to_surface(screen, palettes, (100, 100))
 pygame.display.flip()
 
 while running:
