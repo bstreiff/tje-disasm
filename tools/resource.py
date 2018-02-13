@@ -15,6 +15,7 @@ class Resource:
         self.kind = kind
         self.address = address
         self.length = length
+        self.attrs = {}
 
     def __str__(self):
         return "<%d,%08x,%08x>" % (self.kind, self.address, self.length)

@@ -9,7 +9,7 @@ import struct
 from functools import reduce
 from collections import namedtuple
 from genesisrom import GenesisRomHeader
-from resource import Resource, ResourceKind
+from resource import Resource, ResourceKind, ResourceTable
 from sprite import MetaSprite, Sprite, Palette, Rect
 
 parser = argparse.ArgumentParser(description='Resource Extractor')
@@ -20,6 +20,8 @@ args = vars(parser.parse_args())
 cfg = configparser.ConfigParser()
 cfg.read(args['rsrccfg'])
 
+resource_table = ResourceTable()
+resource_labels = {}
 palettes = {}
 
 EXPORT_PNGS = 0
@@ -29,7 +31,7 @@ def extract_rawbin(filename, rom, resource):
         rom.seek(resource.address)
         out.write(rom.read(resource.length))
 
-def extract_metasprite_list(resource_name, rom, resource, palette_name):
+def extract_metasprite_list(resource_name, rom, resource):
     rom.seek(resource.address)
     # the "resource" is just an array of addresses to metasprites
     mspr_pointers = struct.unpack(">%dI" % (resource.length >> 2), rom.read(resource.length))
@@ -56,6 +58,7 @@ def extract_metasprite_list(resource_name, rom, resource, palette_name):
             mspr.write_asm(out)
 
     if not EXPORT_PNGS:
+        palette_name = resource.attrs.get('palette', 'PaletteDefault')
         palette_group = palettes[palette_name]
         msprbounds = msprs[0].bounds()
         msprbounds = reduce((lambda x, y: Rect.union(x, y)),
@@ -72,33 +75,19 @@ def extract_metasprite_list(resource_name, rom, resource, palette_name):
             pygame.image.save(surface, "resources/" + tmpname + ".png")
 
 
-def extract_resource(rom, name, cfgsect):
-    kind = ResourceKind[cfgsect['kind']]
-
-    if kind == ResourceKind.PALETTE:
-        # not actually extracted, just maintained as metadata
-        # for extracting sprites
-        pal = []
-        for p in range(0, 4):
-            rom.seek(int(cfgsect['address%d' % p], 0))
-            pal.append(Palette.extract_from(rom).rgba())
-        palettes[name] = pal
-        return
-
-    resource = Resource(kind=kind,
-                        address=int(cfgsect['address'], 0),
-                        length=int(cfgsect['length'], 0))
+def extract_resource(rom, resource_label):
+    resource_addr = resource_labels[resource_label]
+    resource = resource_table[resource_addr]
 
     if resource.kind == ResourceKind.RAW_IMAGE:
         # Just write it out as a binary blob
-        extract_rawbin("resources/" + name + ".bin", rom, resource)
+        extract_rawbin("resources/" + resource_label + ".bin", rom, resource)
     elif resource.kind == ResourceKind.Z80_BINARY:
         # Another binary blob. Decompiling this may someday be
         # interesting, but not today.
-        extract_rawbin("resources/" + name + ".z80.bin", rom, resource)
+        extract_rawbin("resources/" + resource_label + ".z80.bin", rom, resource)
     elif resource.kind == ResourceKind.METASPRITE_LIST:
-        palette_name = cfgsect.get('palette', 'PaletteDefault')
-        extract_metasprite_list(name, rom, resource, palette_name)
+        extract_metasprite_list(resource_label, rom, resource)
 
 with open(args['romfile'], "rb") as rom:
     romheader = GenesisRomHeader.extract_from(rom)
@@ -112,5 +101,30 @@ with open(args['romfile'], "rb") as rom:
     if not os.path.exists("resources"):
         os.makedirs("resources");
 
+    # Two-phase lookup. Because resources may refer to each other
+    # (for instance, palettes), parse all the resources first, then
+    # process them.
     for resource_name in cfg.sections():
-        extract_resource(rom, resource_name, cfg[resource_name])
+        cfgsect = cfg[resource_name]
+        kind = ResourceKind[cfgsect['kind']]
+        if kind == ResourceKind.PALETTE:
+            # not actually extracted, just maintained as metadata
+            # for extracting sprites
+            pal = []
+            for p in range(0, 4):
+                rom.seek(int(cfgsect['address%d' % p], 0))
+                pal.append(Palette.extract_from(rom).rgba())
+            palettes[resource_name] = pal
+        else:
+            resource = Resource(kind=kind,
+                                address=int(cfgsect['address'], 0),
+                                length=int(cfgsect['length'], 0))
+            for key in cfgsect:
+                if key == "kind" or key == "address" or key == "length":
+                    continue
+                resource.attrs[key] = cfgsect[key]
+            resource_table.append(resource)
+            resource_labels[resource_name] = resource.address
+
+    for resource_label in resource_labels:
+        extract_resource(rom, resource_label)
