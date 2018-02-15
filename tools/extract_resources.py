@@ -75,9 +75,8 @@ def extract_metasprite_list(resource_name, rom, resource):
             pygame.image.save(surface, "resources/" + tmpname + ".png")
 
 
-def extract_resource(rom, resource_label):
-    resource_addr = resource_labels[resource_label]
-    resource = resource_table[resource_addr]
+def extract_resource(rom, resource):
+    resource_label = resource.attrs["label"]
 
     if resource.kind == ResourceKind.RAW_IMAGE:
         # Just write it out as a binary blob
@@ -163,6 +162,27 @@ with open(args['romfile'], "rb") as rom:
         resource_table.append(resource)
     print("added %d resources" % len(resources_to_add))
 
+    # for all sprite lists, add in the sprites, and their data
+    resources_to_add = []
+    for resource_addr in resource_table:
+        resource = resource_table[resource_addr]
+        if (resource.kind == ResourceKind.SPRITE_LIST):
+            rom.seek(resource.address)
+            pointers = struct.unpack(">%dI" % (resource.length >> 2), rom.read(resource.length))
+            for index,p in enumerate(pointers):
+                rom.seek(p);
+                print("pointer %08x" % p )
+                spr = Sprite.extract_from(rom)
+                spr_name = resource.attrs["label"] + ("Frame%02d" % index)
+                spr.header_resource.attrs["label"] = spr_name
+                sprdat_name = spr_name + ("Data")
+                spr.data_resource.attrs["label"] = sprdat_name
+                resources_to_add.append(spr.header_resource)
+                resources_to_add.append(spr.data_resource)
+    for resource in resources_to_add:
+        resource_table.append(resource)
+    print("added %d resources" % len(resources_to_add))
+
     # now go through extraction
     with open("resources/debug.txt", "w") as out:
         out.write("; known resources\n")
@@ -186,4 +206,4 @@ with open(args['romfile'], "rb") as rom:
             next_addr = resource.address + resource.length
             last_resource = resource
             
-            #extract_resource(rom, resource.attrs["label"])
+            extract_resource(rom, resource)

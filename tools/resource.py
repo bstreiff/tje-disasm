@@ -11,6 +11,7 @@ class ResourceKind(Enum):
     RAW_IMAGE = 6
     PALETTE = 7
     M68K_CODE = 8
+    SPRITE_LIST = 9
 
 class Resource:
     def __init__(self, kind, address, length):
@@ -20,7 +21,7 @@ class Resource:
         self.attrs = {}
 
     def __str__(self):
-        return "<%d,%08x,%08x>" % (self.kind, self.address, self.length)
+        return "<%s,%08x,%08x>" % (self.kind, self.address, self.length)
 
     def __eq__(self, other):
         return ((self.kind == other.kind) and
