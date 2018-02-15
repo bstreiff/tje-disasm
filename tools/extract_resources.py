@@ -123,8 +123,67 @@ with open(args['romfile'], "rb") as rom:
                 if key == "kind" or key == "address" or key == "length":
                     continue
                 resource.attrs[key] = cfgsect[key]
+            resource.attrs["label"] = resource_name
             resource_table.append(resource)
             resource_labels[resource_name] = resource.address
 
-    for resource_label in resource_labels:
-        extract_resource(rom, resource_label)
+    # for all metasprite lists, add in the metasprites they refer to
+    resources_to_add = []
+    for resource_addr in resource_table:
+        resource = resource_table[resource_addr]
+        if (resource.kind == ResourceKind.METASPRITE_LIST):
+            rom.seek(resource.address)
+            pointers = struct.unpack(">%dI" % (resource.length >> 2), rom.read(resource.length))
+            for index,p in enumerate(pointers):
+                rom.seek(p);
+                header = struct.unpack(">bbbb", rom.read(4))
+                sprite_count = header[0]
+                mspr_resource = Resource(kind=ResourceKind.METASPRITE_HEADER,
+                                         address=p,
+                                         length=4+(10*sprite_count))
+                mspr_name = resource.attrs["label"] + ("Frame%02d" % index)
+                mspr_resource.attrs["label"] = mspr_name
+                resources_to_add.append(mspr_resource)
+    for resource in resources_to_add:
+        resource_table.append(resource)
+    print("added %d resources" % len(resources_to_add))
+
+    # for all metasprites, add the data
+    resources_to_add = []
+    for resource_addr in resource_table:
+        resource = resource_table[resource_addr]
+        if (resource.kind == ResourceKind.METASPRITE_HEADER):
+            rom.seek(resource.address)
+            mspr = MetaSprite.extract_from(rom)
+            for index,s in enumerate(mspr.sprites):
+                sprdat_name = resource.attrs["label"] + ("Data%02d" % index)
+                s.data_resource.attrs["label"] = sprdat_name
+                resources_to_add.append(s.data_resource)
+    for resource in resources_to_add:
+        resource_table.append(resource)
+    print("added %d resources" % len(resources_to_add))
+
+    # now go through extraction
+    with open("resources/debug.txt", "w") as out:
+        out.write("; known resources\n")
+        last_resource = None
+        next_addr = 0x00000000
+        for resource_addr in sorted(resource_table.keys()):
+            resource = resource_table[resource_addr]
+
+            if resource.address != next_addr:
+                if resource.address - next_addr < 0:
+                    out.write(";;; DATA OVERLAP: %08x:%d vs %08x:%d\n" %
+                              (last_resource.address, last_resource.length,
+                               resource.address, resource.length))
+                else:
+                    out.write(";;; MISSING DATA between %08x and %08x (len %d)\n" %
+                              (next_addr, resource.address,
+                               (resource.address - next_addr)))
+
+            out.write("%s:\t; offset $%08x, len %d\n" % (resource.attrs["label"],
+                resource.address, resource.length))
+            next_addr = resource.address + resource.length
+            last_resource = resource
+            
+            #extract_resource(rom, resource.attrs["label"])

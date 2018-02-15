@@ -2,6 +2,7 @@ from collections import OrderedDict
 from enum import Enum
 
 class ResourceKind(Enum):
+    IGNORE = 0
     SPRITE_HEADER = 1
     SPRITE_DATA = 2
     METASPRITE_HEADER = 3
@@ -9,6 +10,7 @@ class ResourceKind(Enum):
     Z80_BINARY = 5
     RAW_IMAGE = 6
     PALETTE = 7
+    M68K_CODE = 8
 
 class Resource:
     def __init__(self, kind, address, length):
