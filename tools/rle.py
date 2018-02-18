@@ -4,7 +4,7 @@ import io
 import struct
 
 class InterleavedRleDecompressor:
-    def decompress(data, max_length=0):
+    def decompress(data, max_length):
         if (type(data) is bytes or type(data) is bytearray):
            data = io.BytesIO(data)
 
@@ -72,35 +72,40 @@ class InterleavedRleDecompressor:
         return bytes(decompressed)
 
 class RleDecompressor:
-    def decompress(data, max_length=0):
+    def decompress(data, max_length):
         if (type(data) is bytes or type(data) is bytearray):
            data = io.BytesIO(data)
 
         decompressed = bytearray()
+        decompressed_bytes = 0
 
-        while max_length != 0 and len(decompressed) <= max_length:
-            if data.peek(1) == 0:
-                break
-            token = data.read(1)[0]
+        while decompressed_bytes < max_length:
+            readvalue = data.read(1)
+            token = struct.unpack(">b", readvalue)[0]
 
-            # need this to be a signed byte to make the conditionals work out
-            if (token >= 128):
-                token = -(256 - token);
-
-            if (token <= -64):
-                count = -64 - token
-                decompressed.extend( (b'\x00' * count) )
-            elif (token >= 64):
-                count = token - 64
-                decompressed.extend( (b'\xFF' * count) )
-            elif (token < 0):
-                count = -token
-                data_to_copy = data.read(1)[0]
-                decompressed.extend( [data_to_copy] * count )
-            else:
-                count = token
-                direct_data = data.read(count)
+            if token < -64:
+                # token is between 0x80 and 0xBF
+                token = -(token + 64)                
+                decompressed.extend( (b'\x00' * token) )
+            elif token < 0:
+                # token is between 0xC0 and 0xFF
+                token = -token
+                val = struct.unpack(">B", data.read(1))[0]
+                decompressed.extend( [val] * token )
+            elif token == 0:
+                # This would be "next 0 values", which isn't useful at
+                # all. Throw an error.
+                raise ValueError("useless token in decompression stream!")
+            elif token < 64:
+                # token is between 0x00 and 0x3F
+                direct_data = data.read(token)
                 decompressed.extend( direct_data )
+            else:
+                # token is between 0x40 and 0x7F
+                token = token & 0x3F
+                decompressed.extend( (b'\xFF' * token) )
+
+            decompressed_bytes += token
 
         return bytes(decompressed)
 
