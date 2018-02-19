@@ -26,12 +26,29 @@ with open(args['rom'], "rb") as rom:
 
 running = True
 
+scale = 8
 bounds = metaspr.bounds()
 
-screen = pygame.display.set_mode((bounds[2], bounds[3]))
+screen = pygame.display.set_mode((bounds[2]*scale, bounds[3]*scale))
 pygame.display.set_caption("gfx_display")
-screen.fill((0, 126, 194))
-metaspr.draw_to_surface(screen, palettes, (-bounds[0], -bounds[1]))
+
+surface = pygame.Surface((bounds[2], bounds[3]))
+surface.fill((0, 126, 194))
+metaspr.draw_to_surface(surface, palettes, (-bounds[0], -bounds[1]))
+
+pygame.transform.scale(surface, (bounds[2]*scale, bounds[3]*scale), screen)
+
+for s in metaspr.sprites:
+    b = s.bounds()
+    b = b.move(-bounds[0], -bounds[1])
+
+    for x in range(0, s.width):
+        for y in range(0, s.height):
+            scaled = ((b[0]+(x*8))*8, (b[1]+(y*8))*8, 8*8, 8*8)
+            pygame.draw.rect(screen, (75, 0, 255), scaled, 2)
+
+    scaled = (b[0]*8, b[1]*8, b[2]*8, b[3]*8)
+    pygame.draw.rect(screen, (0, 255, 75), scaled, 2)
 
 pygame.display.flip()
 
