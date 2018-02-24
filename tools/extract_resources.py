@@ -78,6 +78,8 @@ def extract_resource(rom, resource):
         extract_rawbin("resources/" + resource_label + ".bin", rom, resource)
     if resource.kind == ResourceKind.PCM_AUDIO:
         # Just write it out as a binary blob
+        # These appear to have a two-byte length header, followed
+        # by mono 8-bit LPCM samples at somewhere around 8kHz.
         extract_rawbin("resources/" + resource_label + ".sfx.bin", rom, resource)
     elif resource.kind == ResourceKind.Z80_BINARY:
         # Another binary blob. Decompiling this may someday be
