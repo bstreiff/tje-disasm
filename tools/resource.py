@@ -12,6 +12,7 @@ class ResourceKind(Enum):
     PALETTE = 7
     M68K_CODE = 8
     SPRITE_LIST = 9
+    PCM_AUDIO = 10
 
 class Resource:
     def __init__(self, kind, address, length):
@@ -47,5 +48,5 @@ class ResourceTable(OrderedDict):
         if resource.address in self:
             if not self[resource.address] == resource:
                 raise ValueError("resource %s already exists at %08x" % (resource, resource.address))
-
-        self[resource.address] = resource
+        else:
+            self[resource.address] = resource

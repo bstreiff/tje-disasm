@@ -47,32 +47,27 @@ def extract_metasprite_list(resource_name, rom, resource):
         for sindex, spr in enumerate(mspr.sprites):
             spr.name = mspr.name + ("Spr%02d" % sindex)
 
+    # group up the metasprite list, metasprites, and 
+
     # ASM file that provides the jump table
-    with open("resources/" + resource_name + ".asm", "w") as out:
-        out.write("%s:\t\t; offset %08X\n" % (resource_name, resource.address))
-        for mspr in msprs:
-            out.write("\tdc.l\t%s\n" % mspr.name);
+    #with open("resources/" + resource_name + ".asm", "w") as out:
 
-    for mindex, mspr in enumerate(msprs):
-        with open("resources/" + mspr.name + ".asm", "w") as out:
-            mspr.write_asm(out)
+    #if not EXPORT_PNGS:
+    #    palette_name = resource.attrs.get('palette', 'PaletteDefault')
+    #    palette_group = palettes[palette_name]
+    #    msprbounds = msprs[0].bounds()
+    #    msprbounds = reduce((lambda x, y: Rect.union(x, y)),
+    #                        [m.bounds() for m in msprs])
 
-    if not EXPORT_PNGS:
-        palette_name = resource.attrs.get('palette', 'PaletteDefault')
-        palette_group = palettes[palette_name]
-        msprbounds = msprs[0].bounds()
-        msprbounds = reduce((lambda x, y: Rect.union(x, y)),
-                            [m.bounds() for m in msprs])
-
-        for mindex, mspr in enumerate(msprs):
-            # figure out where this should go
-            pos = (-msprbounds[0], -msprbounds[1])
-            surface = pygame.Surface((msprbounds[2], msprbounds[3]), depth=24)
-            surface.set_colorkey((0,126,194))
-            surface.fill((0,126,194))
-            mspr.draw_to_surface(surface, palette_group, pos)
-            tmpname = "%07d_%02d_%s" % (resource.address, mindex, mspr.name)
-            pygame.image.save(surface, "resources/" + tmpname + ".png")
+    #    for mindex, mspr in enumerate(msprs):
+    #        # figure out where this should go
+    #        pos = (-msprbounds[0], -msprbounds[1])
+    #        surface = pygame.Surface((msprbounds[2], msprbounds[3]), depth=24)
+    #        surface.set_colorkey((0,126,194))
+    #        surface.fill((0,126,194))
+    #        mspr.draw_to_surface(surface, palette_group, pos)
+    #        tmpname = "%07d_%02d_%s" % (resource.address, mindex, mspr.name)
+    #        pygame.image.save(surface, "resources/" + tmpname + ".png")
 
 
 def extract_resource(rom, resource):
@@ -81,6 +76,9 @@ def extract_resource(rom, resource):
     if resource.kind == ResourceKind.RAW_IMAGE:
         # Just write it out as a binary blob
         extract_rawbin("resources/" + resource_label + ".bin", rom, resource)
+    if resource.kind == ResourceKind.PCM_AUDIO:
+        # Just write it out as a binary blob
+        extract_rawbin("resources/" + resource_label + ".sfx.bin", rom, resource)
     elif resource.kind == ResourceKind.Z80_BINARY:
         # Another binary blob. Decompiling this may someday be
         # interesting, but not today.
@@ -141,11 +139,11 @@ with open(args['romfile'], "rb") as rom:
                                          address=p,
                                          length=4+(10*sprite_count))
                 mspr_name = resource.attrs["label"] + ("Frame%02d" % index)
-                mspr_resource.attrs["label"] = mspr_name
+                if not "label" in mspr_resource.attrs:
+                    mspr_resource.attrs["label"] = mspr_name
                 resources_to_add.append(mspr_resource)
     for resource in resources_to_add:
         resource_table.append(resource)
-    print("added %d resources" % len(resources_to_add))
 
     # for all metasprites, add the data
     resources_to_add = []
@@ -156,11 +154,11 @@ with open(args['romfile'], "rb") as rom:
             mspr = MetaSprite.extract_from(rom)
             for index,s in enumerate(mspr.sprites):
                 sprdat_name = resource.attrs["label"] + ("Data%02d" % index)
-                s.data_resource.attrs["label"] = sprdat_name
+                if not "label" in s.data_resource.attrs:
+                    s.data_resource.attrs["label"] = sprdat_name
                 resources_to_add.append(s.data_resource)
     for resource in resources_to_add:
         resource_table.append(resource)
-    print("added %d resources" % len(resources_to_add))
 
     # for all sprite lists, add in the sprites, and their data
     resources_to_add = []
@@ -171,17 +169,17 @@ with open(args['romfile'], "rb") as rom:
             pointers = struct.unpack(">%dI" % (resource.length >> 2), rom.read(resource.length))
             for index,p in enumerate(pointers):
                 rom.seek(p);
-                print("pointer %08x" % p )
                 spr = Sprite.extract_from(rom)
                 spr_name = resource.attrs["label"] + ("Frame%02d" % index)
-                spr.header_resource.attrs["label"] = spr_name
+                if not "label" in spr.header_resource.attrs:
+                    spr.header_resource.attrs["label"] = spr_name
                 sprdat_name = spr_name + ("Data")
-                spr.data_resource.attrs["label"] = sprdat_name
+                if not "label" in spr.data_resource.attrs:
+                    spr.data_resource.attrs["label"] = sprdat_name
                 resources_to_add.append(spr.header_resource)
                 resources_to_add.append(spr.data_resource)
     for resource in resources_to_add:
         resource_table.append(resource)
-    print("added %d resources" % len(resources_to_add))
 
     # now go through extraction
     with open("resources/debug.txt", "w") as out:
