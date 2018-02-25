@@ -231,3 +231,7 @@ gTelephoneXPos		equ	$FFE252		; word
 gTelephoneYPos		equ	$FFE254		; word
 gTelephoneRingsLeft	equ	$FFE260		; byte
 gTelephoneTimeToRing	equ	$FFE262		; byte
+
+; sprite object identifiers for the menu system
+gMenuCursorObjId	equ	$FFE392		; word
+gMenuHeaderObjId	equ	$FFE394		; word
