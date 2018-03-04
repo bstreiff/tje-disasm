@@ -10,8 +10,8 @@ PYTHON3=python3
 SOURCE_ASM := main.asm
 
 OBJDIR := obj
-SOURCE_DUMP := $(OBJDIR)/source.dump.txt
-SOURCE_HASH := $(OBJDIR)/source.hash.txt
+SOURCE_DUMP := $(OBJDIR)/source.$(GAME_REVISION).dump.txt
+SOURCE_HASH := $(OBJDIR)/source.$(GAME_REVISION).hash.txt
 TARGET_ROM := $(OBJDIR)/target.bin
 TARGET_DUMP := $(OBJDIR)/target.dump.txt
 TARGET_HASH := $(OBJDIR)/target.hash.txt
