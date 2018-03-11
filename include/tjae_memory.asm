@@ -65,6 +65,12 @@ P1_MENU_SCROLL		equ	$FF9366		; byte
 P1_MENU_SEL_ROW		equ	$FF9368		; byte
 P1_MENU_SEL_COL		equ	$FF936A		; byte
 
+; Space to store items/prices while the mailbox purchase menu is up
+gPlayer1MailboxItems	equ	$FF937A		; byte[3]
+gPlayer2MailboxItems	equ	$FF937D		; byte[3]
+gPlayer1MailboxPrices	equ	$FF9380		; byte[3]
+gPlayer2MailboxPrices	equ	$FF9383		; byte[3]
+
 ; Sprite data for the font. Staging buffer for loading into VDP?
 TEXT_SPRITE_DATA_START	equ	$FF9388
 TEXT_SPRITE_DATA_LEN	equ	$EC0
@@ -184,6 +190,20 @@ gPlayerInventory	equ	$FFDAC2		; byte[32]
 ;; #define MAX_OBJECTS 64
 ;; extern struct Object gObjectTable[MAX_OBJECTS];
 gObjectTable		equ	$FFDAE2		; Object[64]
+
+;; This is the table of dropped presents.
+;; struct DroppedPresent {
+;;     unsigned char contents;
+;;     unsigned char level;
+;;     unsigned char zsort;
+;;     unsigned char unknown;
+;;     unsigned short xpos;
+;;     unsigned short ypos'
+;; }
+;; #define MAX_DROPPED_PRESENTS 32
+;; extern struct DroppedPresent gDroppedPresentTable[MAX_DROPPED_PRESENTS];
+gDroppedPresentTable	equ	$FFDCE6
+gDroppedPresentTableIdx	equ	$FFDDE6
 
 ; active powerup
 ;	$00: wings
