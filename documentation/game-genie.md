@@ -26,3 +26,4 @@
 | Super hi-tops last twice as long            | 5V3T-CLGR     |
 | All other presents last twice as long       | 4B3T-CRAE     |
 | Short game (all pieces on first 11 levels)  | RH6T-C6VN + JH6T-DJV4 + TH6T-DRB6 |
+| Constant tomato rain effect                 | RHDT-C6YN     |
