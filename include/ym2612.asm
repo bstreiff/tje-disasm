@@ -1,197 +1,194 @@
-; Register naming courtesy of ChaosTracker:
-; https://github.com/LeviathaninWaves/ChaosTracker/blob/master/v005/YM2612/YGlobals.asm
-
 ; low frequency oscillator
-YM2612_LFO:			= $22
+YM2612_REG_LFO			equ $22
 
 ; Timer A
-YM2612_Timer_A_MSB:		= $24
-YM2612_Timer_A_LSB:		= $25
+YM2612_REG_TIMERAH		equ $24
+YM2612_REG_TIMERAL		equ $25
 
 ; Timer B
-YM2612_Timer_B:			= $26
+YM2612_REG_TIMERB		equ $26
 
 ; Timers and Ch3/6 mode
-YM2612_Timers_Ch36_Mode:	= $27
+YM2612_REG_CH36MODE		equ $27
 
 ; Key on/off
-YM2612_Key_On_Off:		= $28
+YM2612_REG_KEYONOFF		equ $28
 
 ; DAC
-YM2612_DAC:			= $2A
-YM2612_DAC_Enable:		= $2B
+YM2612_REG_DACDATA		equ $2A
+YM2612_REG_DACENBL		equ $2B
 
 ;Register name      | Actual | bits  | Actual | bits
 ;Detune and Multiple| DT1    | b6-b4 | MUL    | b3-b0
 
-YM2612_Ch1_Ch4_Op1_Det_Mult:	= $30
-YM2612_Ch2_Ch5_Op1_Det_Mult:	= $31
-YM2612_Ch3_Ch6_Op1_Det_Mult:	= $32
+YM2612_REG_CH1OP1_DETMUL	equ $30
+YM2612_REG_CH2OP1_DETMUL	equ $31
+YM2612_REG_CH3OP1_DETMUL	equ $32
 
-YM2612_Ch1_Ch4_Op2_Det_Mult:	= $34
-YM2612_Ch2_Ch5_Op2_Det_Mult:	= $35
-YM2612_Ch3_Ch6_Op2_Det_Mult:	= $36
+YM2612_REG_CH1OP2_DETMUL	equ $34
+YM2612_REG_CH2OP2_DETMUL	equ $35
+YM2612_REG_CH3OP2_DETMUL	equ $36
 
-YM2612_Ch1_Ch4_Op3_Det_Mult:	= $38
-YM2612_Ch2_Ch5_Op3_Det_Mult:	= $39
-YM2612_Ch3_Ch6_Op3_Det_Mult:	= $3a
+YM2612_REG_CH1OP3_DETMUL	equ $38
+YM2612_REG_CH2OP3_DETMUL	equ $39
+YM2612_REG_CH3OP3_DETMUL	equ $3A
 
-YM2612_Ch1_Ch4_Op4_Det_Mult:	= $3c
-YM2612_Ch2_Ch5_Op4_Det_Mult:	= $3d
-YM2612_Ch3_Ch6_Op4_Det_Mult:	= $3e
+YM2612_REG_CH1OP4_DETMUL	equ $3C
+YM2612_REG_CH2OP4_DETMUL	equ $3D
+YM2612_REG_CH3OP4_DETMUL	equ $3E
 
 ;Register name      | Actual | bits
 ;Total Level        | TL     | b6-b0
 
-YM2612_Ch1_Ch4_Op1_TotalLevel:	= $40
-YM2612_Ch2_Ch5_Op1_TotalLevel:	= $41
-YM2612_Ch3_Ch6_Op1_TotalLevel:	= $42
+YM2612_REG_CH1OP1_TL		equ $40
+YM2612_REG_CH2OP1_TL		equ $41
+YM2612_REG_CH3OP1_TL		equ $42
 
-YM2612_Ch1_Ch4_Op2_TotalLevel:	= $44
-YM2612_Ch2_Ch5_Op2_TotalLevel:	= $45
-YM2612_Ch3_Ch6_Op2_TotalLevel:	= $46
+YM2612_REG_CH1OP2_TL		equ $44
+YM2612_REG_CH2OP2_TL		equ $45
+YM2612_REG_CH3OP2_TL		equ $46
 
-YM2612_Ch1_Ch4_Op3_TotalLevel:	= $48
-YM2612_Ch2_Ch5_Op3_TotalLevel:	= $49
-YM2612_Ch3_Ch6_Op3_TotalLevel:	= $4A
+YM2612_REG_CH1OP3_TL		equ $48
+YM2612_REG_CH2OP3_TL		equ $49
+YM2612_REG_CH3OP3_TL		equ $4A
 
-YM2612_Ch1_Ch4_Op4_TotalLevel:	= $4C
-YM2612_Ch2_Ch5_Op4_TotalLevel:	= $4D
-YM2612_Ch3_Ch6_Op4_TotalLevel:	= $4E
+YM2612_REG_CH1OP4_TL		equ $4C
+YM2612_REG_CH2OP4_TL		equ $4D
+YM2612_REG_CH3OP4_TL		equ $4E
 
 ;Register name            | Actual | bits  | Actual | bits
 ;Rate Scaling Attack Rate | RS     | b7-b6 | AR     | b4-b0
 
-YM2612_Ch1_Ch4_Op1_RateScaling_AttackRate: = $50
-YM2612_Ch2_Ch5_Op1_RateScaling_AttackRate: = $51
-YM2612_Ch3_Ch6_Op1_RateScaling_AttackRate: = $52
+YM2612_REG_CH1OP1_RATEH		equ $50
+YM2612_REG_CH2OP1_RATEH		equ $51
+YM2612_REG_CH3OP1_RATEH		equ $52
 
-YM2612_Ch1_Ch4_Op2_RateScaling_AttackRate: = $54
-YM2612_Ch2_Ch5_Op2_RateScaling_AttackRate: = $55
-YM2612_Ch3_Ch6_Op2_RateScaling_AttackRate: = $56
+YM2612_REG_CH1OP2_RATEH		equ $54
+YM2612_REG_CH2OP2_RATEH		equ $55
+YM2612_REG_CH3OP2_RATEH		equ $56
 
-YM2612_Ch1_Ch4_Op3_RateScaling_AttackRate: = $58
-YM2612_Ch2_Ch5_Op3_RateScaling_AttackRate: = $59
-YM2612_Ch3_Ch6_Op3_RateScaling_AttackRate: = $5A
+YM2612_REG_CH1OP3_RATEH		equ $58
+YM2612_REG_CH2OP3_RATEH		equ $59
+YM2612_REG_CH3OP3_RATEH		equ $5A
 
-YM2612_Ch1_Ch4_Op4_RateScaling_AttackRate: = $5C
-YM2612_Ch2_Ch5_Op4_RateScaling_AttackRate: = $5D
-YM2612_Ch3_Ch6_Op4_RateScaling_AttackRate: = $5E
+YM2612_REG_CH1OP4_RATEH		equ $5C
+YM2612_REG_CH2OP4_RATEH		equ $5D
+YM2612_REG_CH3OP4_RATEH		equ $5E
 
 ;Register name            | Actual | bits  | Actual | bits
 ;First Decay Rate Amp Mod | AM     | b7    | D1R    | b4-b0 
 
-YM2612_Ch1_Ch4_Op1_Decay1_AmpMod:	= $60
-YM2612_Ch2_Ch5_Op1_Decay1_AmpMod:	= $61
-YM2612_Ch3_Ch6_Op1_Decay1_AmpMod:	= $62
+YM2612_REG_CH1OP1_RATEMH	equ $60
+YM2612_REG_CH2OP1_RATEMH	equ $61
+YM2612_REG_CH3OP1_RATEMH	equ $62
 
-YM2612_Ch1_Ch4_Op2_Decay1_AmpMod:	= $64
-YM2612_Ch2_Ch5_Op2_Decay1_AmpMod:	= $65
-YM2612_Ch3_Ch6_Op2_Decay1_AmpMod:	= $66
+YM2612_REG_CH1OP2_RATEMH	equ $64
+YM2612_REG_CH2OP2_RATEMH	equ $65
+YM2612_REG_CH3OP2_RATEMH	equ $66
 
-YM2612_Ch1_Ch4_Op3_Decay1_AmpMod:	= $68
-YM2612_Ch2_Ch5_Op3_Decay1_AmpMod:	= $69
-YM2612_Ch3_Ch6_Op3_Decay1_AmpMod:	= $6A
+YM2612_REG_CH1OP3_RATEMH	equ $68
+YM2612_REG_CH2OP3_RATEMH	equ $69
+YM2612_REG_CH3OP3_RATEMH	equ $6A
 
-YM2612_Ch1_Ch4_Op4_Decay1_AmpMod:	= $6C
-YM2612_Ch2_Ch5_Op4_Decay1_AmpMod:	= $6D
-YM2612_Ch3_Ch6_Op4_Decay1_AmpMod:	= $6E
+YM2612_REG_CH1OP4_RATEMH	equ $6C
+YM2612_REG_CH2OP4_RATEMH	equ $6D
+YM2612_REG_CH3OP4_RATEMH	equ $6E
 
 ;Register name            | Actual | bits  
 ;Secondary Decay Rate     | D2R    | b4-b0
 
-YM2612_Ch1_Ch4_Op1_Decay2:	= $70
-YM2612_Ch2_Ch5_Op1_Decay2:	= $71
-YM2612_Ch3_Ch6_Op1_Decay2:	= $72
+YM2612_REG_CH1OP1_RATEML	equ $70
+YM2612_REG_CH2OP1_RATEML	equ $71
+YM2612_REG_CH3OP1_RATEML	equ $72
 
-YM2612_Ch1_Ch4_Op2_Decay2:	= $74
-YM2612_Ch2_Ch5_Op2_Decay2:	= $75
-YM2612_Ch3_Ch6_Op2_Decay2:	= $76
+YM2612_REG_CH1OP2_RATEML	equ $74
+YM2612_REG_CH2OP2_RATEML	equ $75
+YM2612_REG_CH3OP2_RATEML	equ $76
 
-YM2612_Ch1_Ch4_Op3_Decay2:	= $78
-YM2612_Ch2_Ch5_Op3_Decay2:	= $79
-YM2612_Ch3_Ch6_Op3_Decay2:	= $7A
+YM2612_REG_CH1OP3_RATEML	equ $78
+YM2612_REG_CH2OP3_RATEML	equ $79
+YM2612_REG_CH3OP3_RATEML	equ $7A
 
-YM2612_Ch1_Ch4_Op4_Decay2:	= $7C
-YM2612_Ch2_Ch5_Op4_Decay2:	= $7D
-YM2612_Ch3_Ch6_Op4_Decay2:	= $7E
+YM2612_REG_CH1OP4_RATEML	equ $7C
+YM2612_REG_CH2OP4_RATEML	equ $7D
+YM2612_REG_CH3OP4_RATEML	equ $7E
 
 ;Register name            | Actual | bits  | Actual | bits
 ;Decay Level Release Rate | D1L    | b7-b4 | RR     | b3-b0
 
-YM2612_Ch1_Ch4_Op1_DecayLevel_RelRate:	= $80
-YM2612_Ch2_Ch5_Op1_DecayLevel_RelRate:	= $81
-YM2612_Ch3_Ch6_Op1_DecayLevel_RelRate:	= $82
+YM2612_REG_CH1OP1_RATEL		equ $80
+YM2612_REG_CH2OP1_RATEL		equ $81
+YM2612_REG_CH3OP1_RATEL		equ $82
 
-YM2612_Ch1_Ch4_Op2_DecayLevel_RelRate:	= $84
-YM2612_Ch2_Ch5_Op2_DecayLevel_RelRate:	= $85
-YM2612_Ch3_Ch6_Op2_DecayLevel_RelRate:	= $86
+YM2612_REG_CH1OP2_RATEL		equ $84
+YM2612_REG_CH2OP2_RATEL		equ $85
+YM2612_REG_CH3OP2_RATEL		equ $86
 
-YM2612_Ch1_Ch4_Op3_DecayLevel_RelRate:	= $88
-YM2612_Ch2_Ch5_Op3_DecayLevel_RelRate:	= $89
-YM2612_Ch3_Ch6_Op3_DecayLevel_RelRate:	= $8A
+YM2612_REG_CH1OP3_RATEL		equ $88
+YM2612_REG_CH2OP3_RATEL		equ $89
+YM2612_REG_CH3OP3_RATEL		equ $8A
 
-YM2612_Ch1_Ch4_Op4_DecayLevel_RelRate:	= $8C
-YM2612_Ch2_Ch5_Op4_DecayLevel_RelRate:	= $8D
-YM2612_Ch3_Ch6_Op4_DecayLevel_RelRate:	= $8E
+YM2612_REG_CH1OP4_RATEL		equ $8C
+YM2612_REG_CH2OP4_RATEL		equ $8D
+YM2612_REG_CH3OP4_RATEL		equ $8E
 
 ;Register name            | Actual | bits
 ;SSG-EG                   | SSG-EG | b3-b0
 
-YM2612_Ch1_Ch4_Op1_SSGEG:	= $90
-YM2612_Ch2_Ch5_Op1_SSGEG:	= $91
-YM2612_Ch3_Ch6_Op1_SSGEG:	= $92
+YM2612_REG_CH1OP1_SSGEG		equ $90
+YM2612_REG_CH2OP1_SSGEG		equ $91
+YM2612_REG_CH3OP1_SSGEG		equ $92
 
-YM2612_Ch1_Ch4_Op2_SSGEG:	= $94
-YM2612_Ch2_Ch5_Op2_SSGEG:	= $95
-YM2612_Ch3_Ch6_Op2_SSGEG:	= $96
+YM2612_REG_CH1OP2_SSGEG		equ $94
+YM2612_REG_CH2OP2_SSGEG		equ $95
+YM2612_REG_CH3OP2_SSGEG		equ $96
 
-YM2612_Ch1_Ch4_Op3_SSGEG:	= $98
-YM2612_Ch2_Ch5_Op3_SSGEG:	= $99
-YM2612_Ch3_Ch6_Op3_SSGEG:	= $9A
+YM2612_REG_CH1OP3_SSGEG		equ $98
+YM2612_REG_CH2OP3_SSGEG		equ $99
+YM2612_REG_CH3OP3_SSGEG		equ $9A
 
-YM2612_Ch1_Ch4_Op4_SSGEG:	= $9C
-YM2612_Ch2_Ch5_Op4_SSGEG:	= $9D
-YM2612_Ch3_Ch6_Op4_SSGEG:	= $9e
+YM2612_REG_CH1OP4_SSGEG		equ $9C
+YM2612_REG_CH2OP4_SSGEG		equ $9D
+YM2612_REG_CH3OP4_SSGEG		equ $9E
 
 ;Register name            | Actual  | bits
 ;Frequency LSB            | FreqLSB | b7-b0
 
-YM2612_Ch1_Ch4_FreqLSB:		= $A0
-YM2612_Ch2_Ch5_FreqLSB:		= $A1
-YM2612_Ch3_Ch6_FreqLSB:		= $A2
+YM2612_REG_CH1_FREQL		equ $A0
+YM2612_REG_CH2_FREQL		equ $A1
 
 ;Register name              | Actual | bits  | Actual  | bits
 ;Frequency MSB Octave Block | Block  | b5-b3 | FreqMSB | b2-b0
 
-YM2612_Ch1_Ch4_Octave_FreqMSB:	= $A4
-YM2612_Ch2_Ch5_Octave_FreqMSB:	= $A5
-YM2612_Ch3_Ch6_Octave_FreqMSB:	= $A6
+YM2612_REG_CH1_FREQH		equ $A4
+YM2612_REG_CH2_FREQH		equ $A5
 
 ;Register name                             | Actual  | bits
 ;Channel 3 Supplement Frequency Number LSB | FreqLSB | b7-b0
 
-YM2612_Ch3_Mode_Op2_FrequencyLSB:	= $A8
-YM2612_Ch3_Mode_Op3_FrequencyLSB:	= $A9
-YM2612_Ch3_Mode_Op4_FrequencyLSB:	= $AA
+YM2612_REG_CH3OP1_FREQL		equ $A2
+YM2612_REG_CH3OP2_FREQL		equ $A8
+YM2612_REG_CH3OP3_FREQL		equ $A9
+YM2612_REG_CH3OP4_FREQL		equ $AA
 
 ;Register name                               | Actual  | bits  | Actual  | bits
 ;Ch3 Suppl. Octave Block Ch3 Suppl. Freq MSB | Block   | b5-b3 | FreqMSB | b2-b0
 
-YM2612_Ch3_Mode_Op2_Octave_FrequencyMSB:	= $AC
-YM2612_Ch3_Mode_Op3_Octave_FrequencyMSB:	= $AD
-YM2612_Ch3_Mode_Op4_Octave_FrequencyMSB:	= $AE
+YM2612_REG_CH3OP1_FREQH		equ $A6
+YM2612_REG_CH3OP2_FREQH		equ $AC
+YM2612_REG_CH3OP3_FREQH		equ $AD
+YM2612_REG_CH3OP4_FREQH		equ $AE
 
 ;Register name      | Actual   | bits  | Actual    | bits
 ;Feedback Algorithm | Feedback | b5-b3 | Algorithm | b2-b0
 
-YM2612_Ch1_Ch4_Feedback_Algo:	= $B0
-YM2612_Ch2_Ch5_Feedback_Algo:	= $B1
-YM2612_Ch3_Ch6_Feedback_Algo:	= $B2
+YM2612_REG_CH1_ALGO		equ $B0
+YM2612_REG_CH2_ALGO		equ $B1
+YM2612_REG_CH3_ALGO		equ $B2
 
 ;Register name          | Actual | bits | Actual | bits | Actual | bits  | Actual | bits
 ;Stereo LFO Sensitivity | L      | b7   | R      | b6   | AMS    | b5-b3 | FMS    | b1-b0
 
-YM2612_Ch1_Ch4_Stereo_LFO_Sens:	= $B4
-YM2612_Ch2_Ch5_Stereo_LFO_Sens:	= $B5
-YM2612_Ch3_Ch6_Stereo_LFO_Sens:	= $B6
+YM2612_REG_CH1_STSENS		equ $B4
+YM2612_REG_CH2_STSENS		equ $B5
+YM2612_REG_CH3_STSENS		equ $B6
