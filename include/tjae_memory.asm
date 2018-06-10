@@ -255,3 +255,44 @@ gTelephoneTimeToRing	equ	$FFE262		; byte
 ; sprite object identifiers for the menu system
 gMenuCursorObjId	equ	$FFE392		; word
 gMenuHeaderObjId	equ	$FFE394		; word
+
+; state flags of some sort?
+gMusicUnknownE46E	equ	$FFE46E		; word
+gMusicUnknownE470	equ	$FFE470		; word
+gMusicUnknownE472	equ	$FFE472		; word
+gMusicUnknownE478	equ	$FFE478		; word
+gMusicUnknownE47A	equ	$FFE47A		; word
+gMusicUnknownE47C	equ	$FFE47C		; word
+gMusicUnknownE47E	equ	$FFE47E		; word
+gMusicUnknownE480	equ	$FFE480		; word
+gMusicUnknownE488	equ	$FFE488		; byte
+gMusicUnknownE489	equ	$FFE489		; byte
+
+
+; music system
+gMusicPointer1		equ	$FFFE00		; long
+gMusicPointer2		equ	$FFFE04		; long
+gMusicPointer3		equ	$FFFE08		; long
+gMusicPointer4		equ	$FFFE0C		; long
+gMusicPointer5		equ	$FFFE11		; long
+gMusicPointer6		equ	$FFFE14		; long
+
+gMusicUnknownFE2E	equ	$FFFE2E		; word
+
+gMusicChannel1Ptr1	equ	$FFFE30		; long
+gMusicChannel1Ptr2	equ	$FFFE34		; long
+
+gMusicChannel2Ptr1	equ	$FFFE56		; long
+gMusicChannel2Ptr2	equ	$FFFE5A		; long
+
+gMusicChannel3Ptr1	equ	$FFFE7C		; long
+gMusicChannel3Ptr2	equ	$FFFE80		; long
+
+gMusicChannel4Ptr1	equ	$FFFEA2		; long
+gMusicChannel4Ptr2	equ	$FFFEA6		; long
+
+gMusicChannel5Ptr1	equ	$FFFEC8		; long
+gMusicChannel5Ptr2	equ	$FFFECC		; long
+
+gMusicChannel6Ptr1	equ	$FFFEEE		; long
+gMusicChannel6Ptr2	equ	$FFFEF2		; long
