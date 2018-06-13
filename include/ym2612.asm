@@ -1,5 +1,14 @@
 ; low frequency oscillator
 YM2612_REG_LFO			equ $22
+YM2612_LFO_ENABLE		equ (1 << 4)
+YM2612_LFO_FREQ_3_98		equ $00
+YM2612_LFO_FREQ_5_56		equ $01
+YM2612_LFO_FREQ_6_02		equ $02
+YM2612_LFO_FREQ_6_37		equ $03
+YM2612_LFO_FREQ_6_88		equ $04
+YM2612_LFO_FREQ_9_63		equ $05
+YM2612_LFO_FREQ_48_1		equ $06
+YM2612_LFO_FREQ_72_2		equ $07
 
 ; Timer A
 YM2612_REG_TIMERAH		equ $24
@@ -10,13 +19,26 @@ YM2612_REG_TIMERB		equ $26
 
 ; Timers and Ch3/6 mode
 YM2612_REG_CH36MODE		equ $27
+YM2612_CH36MODE_CH3_SPECIAL 	equ $40
+YM2612_CH36MODE_RESETB		equ (1 << 5)
+YM2612_CH36MODE_RESETA		equ (1 << 4)
+YM2612_CH36MODE_ENABLEB		equ (1 << 3)
+YM2612_CH36MODE_ENABLEA		equ (1 << 2)
+YM2612_CH36MODE_LOADB		equ (1 << 1)
+YM2612_CH36MODE_LOADA		equ (1 << 0)
 
 ; Key on/off
 YM2612_REG_KEYONOFF		equ $28
+YM2612_KEYONOFF_OP4		equ (1 << 7)
+YM2612_KEYONOFF_OP3		equ (1 << 6)
+YM2612_KEYONOFF_OP2		equ (1 << 5)
+YM2612_KEYONOFF_OP1		equ (1 << 4)
+YM2612_KEYONOFF_ALL_OPS		equ $80
 
 ; DAC
 YM2612_REG_DACDATA		equ $2A
 YM2612_REG_DACENBL		equ $2B
+YM2612_DACENBL_ENABLE		equ (1 << 7)
 
 ;Register name      | Actual | bits  | Actual | bits
 ;Detune and Multiple| DT1    | b6-b4 | MUL    | b3-b0
