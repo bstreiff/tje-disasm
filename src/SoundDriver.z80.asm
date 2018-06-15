@@ -4,17 +4,6 @@
 ; This entire program gets loaded into the Z80 RAM.
 ; ---------------------------------------------------------------------
 
-Z80_RAM_START		equ $0000
-Z80_RAM_END		equ $1FFF
-YM2612_P0_ADDR		equ $4000
-YM2612_P0_DATA		equ $4001
-YM2612_P1_ADDR		equ $4002
-YM2612_P1_DATA		equ $4003
-BANK_REG		equ $6000
-PSG_REG			equ $7F11
-M68K_BANK_START		equ $8000
-M68K_BANK_END		equ $FFFF
-
 PSG_DATA		equ (0 << 7)
 PSG_LATCH		equ (1 << 7)
 PSG_CH0			equ (0 << 5)
@@ -24,7 +13,7 @@ PSG_CH3			equ (3 << 5)
 PSG_TONE		equ (0 << 4)
 PSG_VOLUME		equ (1 << 4)
 
-	include	ym2612.asm
+	INCLUDE	z80.asm
 
 	IM	1			; interrupt mode 1
 	DI				; disable interrupts
