@@ -43,7 +43,7 @@ Once installed, it can be found at:
 - `<Steam Directory>\SteamApps\common\Sega Classics\uncompressed ROMs\ToeJamEarl.SGD`
 
 You will also need:
-- [VASM](http://sun.hasenbraten.de/vasm/)
+- [VASM](http://sun.hasenbraten.de/vasm/), built in both the `vasmm68k_mot` and `vasmz80_mot` variants.
 - m68k objdump. For Ubuntu/Debian, consider the "binutils-m68k-linux-gnu" package.
 - python 3
 
