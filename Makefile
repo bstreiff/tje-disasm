@@ -50,7 +50,7 @@ clean:
 	rm -rf $(OBJDIR)/
 
 obj/SoundDriver.tmp.s: $(Z80_DRIVER_SRC)
-	@$(CPP) -E $< -o $@
+	@$(CPP) -D__z80__ -I include -E $< -o $@
 
 obj/SoundDriver.z80.o: obj/SoundDriver.tmp.s
 	@$(Z80_AS) $< -o $@
