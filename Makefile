@@ -1,12 +1,15 @@
 SOURCE_ROM=tjae_rev02.bin
 GAME_REVISION:=$(shell tools/rominfo.py -r $(SOURCE_ROM))
 VASM=vasmm68k_mot -DCPU_M68K -m68000 -spaces -maxerrors=0 -DGAME_REVISION=$(GAME_REVISION)
-VASM_Z80=vasmz80_mot -DCPU_Z80 -spaces -maxerrors=0
 OBJDUMP=m68k-linux-gnu-objdump
 OBJDUMP_DISASSEMBLE=$(OBJDUMP) -D -b binary -m m68k:68000
 OBJDUMP_GETSYMS=$(OBJDUMP) -t
 HASH=sha1sum
 PYTHON3=python3
+CPP=m68k-linux-gnu-cpp
+Z80_AS=z80-unknown-coff-as
+Z80_OBJCOPY=z80-unknown-coff-objcopy
+
 
 SOURCE_ASM := main.asm
 
@@ -22,7 +25,7 @@ TARGET_SYMASM := $(OBJDIR)/include/basegame_gen.S
 TARGET_HEADER := $(OBJDIR)/include/basegame_gen.h
 TARGET_RAM_HEADER := $(OBJDIR)/include/basegame_ram_gen.h
 
-Z80_DRIVER_SRC := src/SoundDriver.z80.asm
+Z80_DRIVER_SRC := src/SoundDriver.z80.S
 Z80_DRIVER_BIN := obj/SoundDriver.z80.bin
 
 OBJS := \
@@ -46,8 +49,14 @@ $(OBJDIR):
 clean:
 	rm -rf $(OBJDIR)/
 
-$(Z80_DRIVER_BIN): $(Z80_DRIVER_SRC)
-	@$(VASM_Z80) -Fbin -Iinclude -o $(Z80_DRIVER_BIN) $(Z80_DRIVER_SRC)
+obj/SoundDriver.tmp.s: $(Z80_DRIVER_SRC)
+	@$(CPP) -E $< -o $@
+
+obj/SoundDriver.z80.o: obj/SoundDriver.tmp.s
+	@$(Z80_AS) $< -o $@
+
+$(Z80_DRIVER_BIN): obj/SoundDriver.z80.o
+	@$(Z80_OBJCOPY) -O binary $< $@
 
 $(SOURCE_DUMP): $(SOURCE_ROM)
 	@$(OBJDUMP_DISASSEMBLE) $(SOURCE_ROM) > $(SOURCE_DUMP)
@@ -75,4 +84,3 @@ $(TARGET_HEADER): $(SOURCE_ASM)
 
 $(TARGET_RAM_HEADER): include/tjae_memory.asm
 	@$(PYTHON3) tools/get_header_comments.py $< > $@
-
