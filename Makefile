@@ -1,17 +1,17 @@
 SOURCE_ROM=tjae_rev02.bin
 GAME_REVISION:=$(shell tools/rominfo.py -r $(SOURCE_ROM))
-VASM=vasmm68k_mot -DCPU_M68K -m68000 -spaces -maxerrors=0 -DGAME_REVISION=$(GAME_REVISION)
 OBJDUMP=m68k-linux-gnu-objdump
 OBJDUMP_DISASSEMBLE=$(OBJDUMP) -D -b binary -m m68k:68000
 OBJDUMP_GETSYMS=$(OBJDUMP) -t
 HASH=sha1sum
 PYTHON3=python3
 CPP=m68k-linux-gnu-cpp
+CC=m68k-linux-gnu-gcc
+OBJCOPY=m68k-linux-gnu-objcopy
 Z80_AS=z80-unknown-coff-as
 Z80_OBJCOPY=z80-unknown-coff-objcopy
 
-
-SOURCE_ASM := main.asm
+SOURCE_ASM := src/main.S
 
 OBJDIR := obj
 SOURCE_DUMP := $(OBJDIR)/source.$(GAME_REVISION).dump.txt
@@ -65,13 +65,13 @@ $(SOURCE_HASH): $(SOURCE_ROM)
 	@$(HASH) $(SOURCE_ROM) | awk '{print $$1}' > $(SOURCE_HASH)
 
 $(TARGET_ELF): $(SOURCE_ASM) $(Z80_DRIVER_BIN)
-	@$(VASM) -Felf -Iinclude -o $(TARGET_ELF) $(SOURCE_ASM)
+	@$(CC) -O0 -DGAME_REVISION=$(GAME_REVISION) -T src/genesis.ld -nostdlib -ffreestanding -m68000 -Wa,--bitwise-or -Wa,--register-prefix-optional -Wl,--oformat -Wl,elf32-m68k -Wl,--build-id=none -Iinclude $< -o $@
 
 $(TARGET_SYMLIST): $(TARGET_ELF)
 	@$(OBJDUMP_GETSYMS) $(TARGET_ELF) | tail -n +5 > $(TARGET_SYMLIST)
 
-$(TARGET_ROM): $(SOURCE_ASM) $(SOURCE_HASH) $(Z80_DRIVER_BIN)
-	$(VASM) -Fbin -Iinclude -o $(TARGET_ROM) $(SOURCE_ASM)
+$(TARGET_ROM): $(TARGET_ELF) $(SOURCE_HASH) $(Z80_DRIVER_BIN)
+	@$(OBJCOPY) -O binary $(TARGET_ELF) $(TARGET_ROM)
 	@$(OBJDUMP_DISASSEMBLE) $(TARGET_ROM) > $(TARGET_DUMP)
 	@$(HASH) $(TARGET_ROM) | awk '{print $$1}' > $(TARGET_HASH)
 	@diff -q $(SOURCE_HASH) $(TARGET_HASH)
