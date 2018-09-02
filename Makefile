@@ -20,10 +20,6 @@ TARGET_ROM := $(OBJDIR)/target.bin
 TARGET_DUMP := $(OBJDIR)/target.dump.txt
 TARGET_HASH := $(OBJDIR)/target.hash.txt
 TARGET_ELF := $(OBJDIR)/target.elf
-TARGET_SYMLIST := $(OBJDIR)/target.symlist.txt
-TARGET_SYMASM := $(OBJDIR)/include/basegame_gen.S
-TARGET_HEADER := $(OBJDIR)/include/basegame_gen.h
-TARGET_RAM_HEADER := $(OBJDIR)/include/basegame_ram_gen.h
 
 Z80_DRIVER_SRC := src/SoundDriver.z80.S
 Z80_DRIVER_BIN := obj/SoundDriver.z80.bin
@@ -34,9 +30,6 @@ OBJS := \
 	$(TARGET_ROM) \
 	$(TARGET_DUMP) \
 	$(TARGET_HASH) \
-	$(TARGET_SYMASM) \
-	$(TARGET_HEADER) \
-	$(TARGET_RAM_HEADER) \
 
 all: $(OBJS)
 
@@ -75,12 +68,3 @@ $(TARGET_ROM): $(TARGET_ELF) $(SOURCE_HASH) $(Z80_DRIVER_BIN)
 	@$(OBJDUMP_DISASSEMBLE) $(TARGET_ROM) > $(TARGET_DUMP)
 	@$(HASH) $(TARGET_ROM) | awk '{print $$1}' > $(TARGET_HASH)
 	@diff -q $(SOURCE_HASH) $(TARGET_HASH)
-
-$(TARGET_SYMASM): $(TARGET_SYMLIST)
-	@$(PYTHON3) tools/build_symtab.py $< > $@
-
-$(TARGET_HEADER): $(SOURCE_ASM)
-	@$(PYTHON3) tools/get_header_comments.py $< > $@
-
-$(TARGET_RAM_HEADER): include/tjae_memory.asm
-	@$(PYTHON3) tools/get_header_comments.py $< > $@
