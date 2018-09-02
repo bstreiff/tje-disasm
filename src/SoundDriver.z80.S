@@ -13,20 +13,8 @@
 #define PSG_TONE		(0 << 4)|0
 #define PSG_VOLUME		(1 << 4)|0
 
-#define Z80_RAM_START		0x0000
-#define Z80_RAM_END		0x1FFF
-#define YM2612_P0_ADDR		0x4000
-#define YM2612_P0_DATA		0x4001
-#define YM2612_P1_ADDR		0x4002
-#define YM2612_P1_DATA		0x4003
-#define BANK_REG		0x6000
-#define PSG_REG			0x7F11
-#define M68K_BANK_START		0x8000
-#define M68K_BANK_END		0xFFFF
-
-#define YM2612_REG_DACDATA	0x2A
-#define YM2612_REG_DACENBL	0x2B
-#define YM2612_DACENBL_ENABLE	0x80
+#include "asm/z80_regs.h"
+#include "asm/ym2612_regs.h"
 
 	IM	1			/* interrupt mode 1 */
 	DI				/* disable interrupts */
