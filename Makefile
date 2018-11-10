@@ -11,7 +11,10 @@ OBJCOPY=m68k-linux-gnu-objcopy
 Z80_AS=z80-unknown-coff-as
 Z80_OBJCOPY=z80-unknown-coff-objcopy
 
-SOURCE_ASM := src/main.S
+SOURCE_ASM := \
+	src/vectors.S \
+	src/header.S \
+	src/main.S \
 
 OBJDIR := obj
 SOURCE_DUMP := $(OBJDIR)/source.$(GAME_REVISION).dump.txt
@@ -58,7 +61,7 @@ $(SOURCE_HASH): $(SOURCE_ROM)
 	@$(HASH) $(SOURCE_ROM) | awk '{print $$1}' > $(SOURCE_HASH)
 
 $(TARGET_ELF): $(SOURCE_ASM) $(Z80_DRIVER_BIN)
-	@$(CC) -O0 -DGAME_REVISION=$(GAME_REVISION) -T src/genesis.ld -nostdlib -ffreestanding -m68000 -Wa,--bitwise-or -Wa,--register-prefix-optional -Wl,--oformat -Wl,elf32-m68k -Wl,--build-id=none -Iinclude $< -o $@
+	@$(CC) -O0 -DGAME_REVISION=$(GAME_REVISION) -T src/genesis.ld -nostdlib -ffreestanding -m68000 -Wa,--bitwise-or -Wa,--register-prefix-optional -Wl,--oformat -Wl,elf32-m68k -Wl,--build-id=none -Iinclude $(SOURCE_ASM) -o $@
 
 $(TARGET_SYMLIST): $(TARGET_ELF)
 	@$(OBJDUMP_GETSYMS) $(TARGET_ELF) | tail -n +5 > $(TARGET_SYMLIST)
