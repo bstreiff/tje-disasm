@@ -49,3 +49,10 @@ You will also need:
 
 For debugging purposes, I have found [Exodus](https://www.exodusemulator.com/) to
 be an excellent choice.
+
+--
+
+I've been working on this analysis on-and-off since about December 2017.
+Sadly, due to Real Life, I've recently had to spend more time of it "off".
+The release of [RyanFaeScotland's own disassembly](https://bitbucket.org/RyanFaeScotland/toejamandearldisassembly/src/master/)
+is what has motivated me to release it in such an incomplete state.
