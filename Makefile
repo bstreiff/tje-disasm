@@ -27,6 +27,8 @@ TARGET_ELF := $(OBJDIR)/target.elf
 Z80_DRIVER_SRC := src/SoundDriver.z80.S
 Z80_DRIVER_BIN := obj/SoundDriver.z80.bin
 
+RESOURCES_CFG := resources.cfg
+
 OBJS := \
 	$(SOURCE_DUMP) \
 	$(SOURCE_HASH) \
@@ -45,6 +47,10 @@ $(OBJDIR):
 clean:
 	rm -rf $(OBJDIR)/
 
+resources/.extracted: tools/extract_resources.py $(RESOURCES_CFG)
+	@$(PYTHON3) tools/extract_resources.py $(RESOURCES_CFG) $(SOURCE_ROM)
+	@touch resources/.extracted
+
 obj/SoundDriver.tmp.s: $(Z80_DRIVER_SRC)
 	@$(CPP) -D__z80__ -I include -E $< -o $@
 
@@ -60,7 +66,7 @@ $(SOURCE_DUMP): $(SOURCE_ROM)
 $(SOURCE_HASH): $(SOURCE_ROM)
 	@$(HASH) $(SOURCE_ROM) | awk '{print $$1}' > $(SOURCE_HASH)
 
-$(TARGET_ELF): $(SOURCE_ASM) $(Z80_DRIVER_BIN)
+$(TARGET_ELF): $(SOURCE_ASM) $(Z80_DRIVER_BIN) resources/.extracted
 	@$(CC) -O0 -DGAME_REVISION=$(GAME_REVISION) -T src/genesis.ld -nostdlib -ffreestanding -m68000 -Wa,--bitwise-or -Wa,--register-prefix-optional -Wl,--oformat -Wl,elf32-m68k -Wl,--build-id=none -Iinclude $(SOURCE_ASM) -o $@
 
 $(TARGET_SYMLIST): $(TARGET_ELF)
