@@ -121,7 +121,7 @@
 
 /* Buttons pressed. */
 #define P1_KEYDOWN		0xFFDA48	/* byte */
-#efine P2_KEYDOWN		0xFFDA49	/* byte */
+#define P2_KEYDOWN		0xFFDA49	/* byte */
 
 /*
  * Countdown timer for the arrival elevator to depart after players have
