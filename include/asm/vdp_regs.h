@@ -7,6 +7,8 @@
  * themselves.
  */
 
+#include "genesis_regs.h"
+
 #ifndef _ASM_VDP_REGS_H
 #define _ASM_VDP_REGS_H
 
@@ -40,7 +42,7 @@
 /* Output Format */
 #define VDP_MODE2_M2			0x08
 /* SMS Display Select */
-#define VDP_MODE1_M5			0x04
+#define VDP_MODE2_M5			0x04
 
 /*
  * Pattern Name Table Address for Scroll A
@@ -95,6 +97,9 @@
 /* Horizontal Scrolling */
 #define VDP_MODE3_HS_MASK		0x03
 #define VDP_MODE3_HS_SHIFT		0
+#define VDP_MODE3_HS_FULL		0x0
+#define VDP_MODE3_HS_8PX		0x2
+#define VDP_MODE3_HS_1PX		0x3
 
 /*
  * Mode Set Register 4
@@ -111,6 +116,8 @@
 #define VDP_MODE4_LS1			0x04
 #define VDP_MODE4_LS0			0x02
 #define VDP_MODE4_RS0			0x01
+/* Both RS0 and RS1 bits are supposed to be the same. */
+#define VDP_MODE4_RS			(VDP_MODE4_RS0|VDP_MODE4_RS1)
 
 /*
  * Horizontal Scroll Data Table Base Address
@@ -131,6 +138,13 @@
  * Scroll Size
  */
 #define VDP_REG_PSIZE			0x10
+#define VDP_PSIZE_256			0x00
+#define VDP_PSIZE_512			0x01
+#define VDP_PSIZE_1024			0x03
+#define VDP_PSIZE_H_MASK		0x30
+#define VDP_PSIZE_H_SHIFT		4
+#define VDP_PSIZE_W_MASK		0x03
+#define VDP_PSIZE_W_SHIFT		0
 
 /*
  * Window Horizontal Position
