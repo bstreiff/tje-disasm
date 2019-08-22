@@ -66,6 +66,11 @@
 #define VDP_SET_VSRAM_WR(addr, flags) \
 	MOVE.l #(VDP_CTRL_ADDR_VSRAM_WR|_VDP_BUILD_ADDR(addr)|flags), VDP_REG_CTRL_PORT
 
+/*
+ * Value for "set MODE2 with M5 bit set". Usually OR'd with other bits.
+ */
+#define VDP_MODE2_M5_SET	_VDP_REGISTER_WRITE(VDP_REG_MODE2, VDP_MODE2_M5)
+
 #endif /* __ASSEMBLER__ */
 
 #endif /* _ASM_VDP_MACROS_H */
