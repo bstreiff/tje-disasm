@@ -17,32 +17,43 @@
  */
 #define VDP_REG_MODE1			0x00
 /* Left column blank */
-#define VDP_MODE1_L			0x20
+#define VDP_MODE1_L_BIT			5
+#define VDP_MODE1_L			BIT(VDP_MODE1_L_BIT)
 /* Horizontal interrupt enable */
-#define VDP_MODE1_IE1			0x10
+#define VDP_MODE1_IE1_BIT		4
+#define VDP_MODE1_IE1			BIT(VDP_MODE1_IE1_BIT)
 /* Palette select */
-#define VDP_MODE1_CM			0x04
+#define VDP_MODE1_CM_BIT		2
+#define VDP_MODE1_CM			BIT(VDP_MODE1_CM_BIT)
 /* HV Counter Latch Enable */
-#define VDP_MODE1_M3			0x02
+#define VDP_MODE1_M3_BIT		1
+#define VDP_MODE1_M3			BIT(VDP_MODE1_M3_BIT)
 /* Display Enable */
-#define VDP_MODE1_DE			0x01
+#define VDP_MODE1_DE_BIT		0
+#define VDP_MODE1_DE			BIT(VDP_MODE1_DE_BIT)
 
 /*
  * Mode Register 2
  */
 #define VDP_REG_MODE2			0x01
 /* 128 KB mode enable */
-#define VDP_MODE2_VR			0x80
+#define VDP_MODE2_VR_BIT		7
+#define VDP_MODE2_VR			BIT(VDP_MODE2_VR_BIT)
 /* Display Enable */
-#define VDP_MODE2_DE			0x40
+#define VDP_MODE2_DE_BIT		6
+#define VDP_MODE2_DE			BIT(VDP_MODE2_DE_BIT)
 /* Vertical Interrupt Enable */
-#define VDP_MODE2_IE0			0x20
+#define VDP_MODE2_IE0_BIT		5
+#define VDP_MODE2_IE0			BIT(VDP_MODE2_IE0_BIT)
 /* DMA Enable */
-#define VDP_MODE2_M1			0x10
+#define VDP_MODE2_M1_BIT		4
+#define VDP_MODE2_M1			BIT(VDP_MODE2_M1_BIT)
 /* Output Format */
-#define VDP_MODE2_M2			0x08
+#define VDP_MODE2_M2_BIT		3
+#define VDP_MODE2_M2			BIT(VDP_MODE2_M2_BIT)
 /* SMS Display Select */
-#define VDP_MODE2_M5			0x04
+#define VDP_MODE2_M5_BIT		2
+#define VDP_MODE2_M5			BIT(VDP_MODE2_M5_BIT)
 
 /*
  * Pattern Name Table Address for Scroll A
@@ -91,9 +102,11 @@
  */
 #define VDP_REG_MODE3			0x0B
 /* External Interrupt Enable */
-#define VDP_MODE3_IE2			0x08
+#define VDP_MODE3_IE2_BIT		3
+#define VDP_MODE3_IE2			BIT(VDP_MODE3_IE2_BIT)
 /* Vertical Scrolling */
-#define VDP_MODE3_VS			0x04
+#define VDP_MODE3_VS_BIT		2
+#define VDP_MODE3_VS			BIT(VDP_MODE3_VS_BIT)
 /* Horizontal Scrolling */
 #define VDP_MODE3_HS_MASK		0x03
 #define VDP_MODE3_HS_SHIFT		0
@@ -106,16 +119,24 @@
  */
 #define VDP_REG_MODE4			0x0C
 /* Controls Horizontal Resolution (with RS0) */
-#define VDP_MODE4_RS1			0x80
-#define VDP_MODE4_VS			0x40
-#define VDP_MODE4_HS			0x20
-#define VDP_MODE4_EP			0x10
+#define VDP_MODE4_RS1_BIT		7
+#define VDP_MODE4_RS1			BIT(VDP_MODE4_RS1_BIT)
+#define VDP_MODE4_VS_BIT		6
+#define VDP_MODE4_VS			BIT(VDP_MODE4_VS_BIT)
+#define VDP_MODE4_HS_BIT		5
+#define VDP_MODE4_HS			BIT(VDP_MODE4_HS_BIT)
+#define VDP_MODE4_EP_BIT		4
+#define VDP_MODE4_EP			BIT(VDP_MODE4_EP_BIT)
 /* Shadow/Highlight */
-#define VDP_MODE4_SH			0x08
+#define VDP_MODE4_SH_BIT		3
+#define VDP_MODE4_SH			BIT(VDP_MODE4_SH_BIT)
 /* Interlacing */
-#define VDP_MODE4_LS1			0x04
-#define VDP_MODE4_LS0			0x02
-#define VDP_MODE4_RS0			0x01
+#define VDP_MODE4_LS1_BIT		2
+#define VDP_MODE4_LS1			BIT(VDP_MODE4_LS1_BIT)
+#define VDP_MODE4_LS0_BIT		1
+#define VDP_MODE4_LS0			BIT(VDP_MODE4_LS0_BIT)
+#define VDP_MODE4_RS0_BIT		0
+#define VDP_MODE4_RS0			BIT(VDP_MODE4_RS0_BIT)
 /* Both RS0 and RS1 bits are supposed to be the same. */
 #define VDP_MODE4_RS			(VDP_MODE4_RS0|VDP_MODE4_RS1)
 
