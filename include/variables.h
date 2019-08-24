@@ -1,5 +1,8 @@
 /* variable addresses */
 
+/* Local softcopy for VDP MODE2 register value */
+#define gMode2RegSoftcopy	0xFF8000	/* byte */
+
 #define P1_CAMERA_X		0xFF8002	/* word */
 #define P1_CAMERA_Y		0xFF8004	/* word */
 #define P2_CAMERA_X		0xFF8006	/* word */

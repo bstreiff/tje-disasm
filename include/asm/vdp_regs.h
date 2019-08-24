@@ -56,6 +56,12 @@
 #define VDP_MODE2_M5			BIT(VDP_MODE2_M5_BIT)
 
 /*
+ * Mask of all the bits that are not DE (and not VR, which will
+ * never be set on a standard console)
+ */
+#define VDP_MODE2_NOT_DE_MASK		(VDP_MODE2_IE0|VDP_MODE2_M1|VDP_MODE2_M2|VDP_MODE2_M5)
+
+/*
  * Pattern Name Table Address for Scroll A
  */
 #define VDP_REG_NAMTBLA			0x02
