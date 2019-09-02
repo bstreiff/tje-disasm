@@ -20,6 +20,32 @@
 /* Seems to govern whether or not we're in split-screen */
 #define SPLIT_SCREEN		0xFF8010	/* byte */
 
+/*
+ * Map data. The game stores multiple maps in-memory as a
+ * cache, which speeds up falling down/un-falling back for
+ * short distances. Moving too many levels does entail
+ * regeneration though.
+ *
+ * Each tile is one word long.
+ */
+#define MAP_WIDTH_IN_TILES	19
+#define MAP_HEIGHT_IN_TILES	26
+#define gMapDataA		0xFF81AA	/* word[19][26] */
+#define gMapDataB		0xFF8586	/* word[19][26] */
+#define gMapDataC		0xFF8962	/* word[19][26] */
+#define gMapDataD		0xFF8D3E
+
+/* Unknown */
+#define gLevel912A		0xFF912A	/* byte */
+/* Toejam's level? */
+#define gLevel912C		0xFF912C	/* byte */
+/* Earl's level? */
+#define gLevel912E		0xFF912E	/* byte */
+/* Unknown, set to 0xFF on init... maybe level cache? */
+#define gLevel9130		0xFF9130	/* byte */
+/* Highest level reached */
+#define gHighestLevel		0xFF9132	/* byte */
+
 /* Is this a Random World or a Fixed World game? */
 #define gWorldType		0xFF9134	/* byte */
 #define gWorldType_RANDOM	0x00
