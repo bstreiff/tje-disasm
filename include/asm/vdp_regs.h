@@ -8,6 +8,7 @@
  */
 
 #include "genesis_regs.h"
+#include "bitops.h"
 
 #ifndef _ASM_VDP_REGS_H
 #define _ASM_VDP_REGS_H

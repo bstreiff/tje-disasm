@@ -6,8 +6,6 @@
 #ifndef _ASM_GENESIS_REGS_H
 #define _ASM_GENESIS_REGS_H
 
-#define BIT(x)				(1 << x)
-
 #define MEM_ROM_START			0x000000
 #define MEM_ROM_LENGTH			0x400000
 
