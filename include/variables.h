@@ -109,37 +109,61 @@
 #define gPlayer2Rank		0xFFA251	/* byte */
 
 /*
-   struct PlayerInfo {
-       unsigned short xpos;
-       unsigned short ypos;
-       unsigned short zpos;
-       unsigned short xaccel;
-       unsigned short yaccel;
-       unsigned short zaccel;
-       unsigned char unknown[64];
-       unsigned char level;
-       unsigned char unknown2[51];
-   };
-   extern struct PlayerInfo gPlayerInfo[2];
-*/
+ * struct PlayerInfo {
+ *     u16 xpos;                  // offset 0x0
+ *     u16 ypos;                  // offset 0x2
+ *     u16 zpos;                  // offset 0x4
+ *     u16 xaccel;                // offset 0x6
+ *     u16 yaccel;                // offset 0x8
+ *     u16 zaccel;                // offset 0xA
+ *     u8  __unknown0C[0xE];      // offset 0xC
+ *     u32 __unknown1A;           // offset 0x1A
+ *     u8  __unknown1E[0x8];      // offset 0x1E
+ *     u8  __unknown26;           // offset 0x26
+ *     u8  __unknown27;           // offset 0x27
+ *     u8  __unknown28;           // offset 0x28
+ *     u8  __unknown29;           // offset 0x29
+ *     u8  __unknown2A;           // offset 0x2A
+ *     u8  __unknown2B[0x4];      // offset 0x2B
+ *     u8  __unknown2F;           // offset 0x2F, some sort of flags?
+ *     u8  __unknown30[0x1A];     // offset 0x30
+ *     u8  __unknown4B;           // offset 0x4B
+ *     u8  level;                 // offset 0x4C
+ *     u8  __unknown4D;           // offset 0x4D
+ *     u8  __unknown4E[0x4];      // offset 0x4E
+ *     u32 state;                 // offset 0x52
+ *     u8  __unknown56;           // offset 0x56
+ *     u32 visibleItemListPtr;    // offset 0x5A, purpose speculated
+ *     u8  __unknown5E[0x22];     // offset 0x5E
+ * };
+ * extern struct PlayerInfo gPlayerInfo[2];
+ *
+ * Members in here are rarely accessed by their direct address.
+ * Typically they're based on an offset from 0xFFA25A in a register.
+ *
+ * Earl's fields will sometimes be accessed via an offset from 0xFFA25A
+ * (e.g., one from 0x80 to 0xFF); sometimes they will be based on an
+ * offset from 0xFFA2DA; sometimes they will use Address Register Indirect With
+ * Index with a constant offset, 0xFFA25A in Ax, and 0x80 in Dx.
+ */
 #define gPlayerInfo		0xFFA25A	
 
-#define P1_POS_X		0xFFA25A	/* word */
-#define P1_POS_Y		0xFFA25C	/* word */
+#define gToejamPositionX	0xFFA25A	/* word */
+#define gToejamPositionY	0xFFA25C	/* word */
 /* ground level is 0x0, deep in sand is 0xFFEC, wings top out at about 0x003A */
-#define P1_POS_Z		0xFFA25E	/* word */
-#define P1_ACCEL_X		0xFFA260	/* word */
-#define P1_ACCEL_Y		0xFFA262	/* word */
-#define P1_ACCEL_Z		0xFFA264	/* word */
-#define P1_LEVEL		0xFFA2A6	/* byte */
+#define gToejamPositionZ	0xFFA25E	/* word */
+#define gToejamAccelX		0xFFA260	/* word */
+#define gToejamAccelY		0xFFA262	/* word */
+#define gToejamAccelZ		0xFFA264	/* word */
+#define gToejamLevel		0xFFA2A6	/* byte */
 
-#define P2_POS_X		0xFFA2DA	/* word */
-#define P2_POS_Y		0xFFA2DC	/* word */
-#define P2_POS_Z		0xFFA2DE	/* word */
-#define P2_ACCEL_X		0xFFA300	/* word */
-#define P2_ACCEL_Y		0xFFA302	/* word */
-#define P2_ACCEL_Z		0xFFA304	/* word */
-#define P2_LEVEL		0xFFA326	/* byte */
+#define gEarlPositionX		0xFFA2DA	/* word */
+#define gEarlPositionY		0xFFA2DC	/* word */
+#define gEarlPositionZ		0xFFA2DE	/* word */
+#define gEarlAccelX		0xFFA300	/* word */
+#define gEarlAccelY		0xFFA302	/* word */
+#define gEarlAccelZ		0xFFA304	/* word */
+#define gEarlLevel		0xFFA326	/* byte */
 
 /*
  * The idle counter counts up every frame(?) and is reset when the player
