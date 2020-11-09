@@ -4,7 +4,7 @@ OBJDUMP=m68k-linux-gnu-objdump
 OBJDUMP_DISASSEMBLE=$(OBJDUMP) -D -b binary -m m68k:68000
 OBJDUMP_GETSYMS=$(OBJDUMP) -t
 HASH=sha1sum
-PYTHON3=python3
+SYSTEM_PYTHON=`which python3`
 CPP=m68k-linux-gnu-cpp
 CC=m68k-linux-gnu-gcc
 OBJCOPY=m68k-linux-gnu-objcopy
@@ -17,6 +17,9 @@ SOURCE_ASM := \
 	src/main.S \
 
 OBJDIR := obj
+VENV := $(OBJDIR)/venv
+PYTHON3=$(VENV)/bin/python3
+
 SOURCE_DUMP := $(OBJDIR)/source.$(GAME_REVISION).dump.txt
 SOURCE_HASH := $(OBJDIR)/source.$(GAME_REVISION).hash.txt
 TARGET_ROM := $(OBJDIR)/target.bin
@@ -30,6 +33,7 @@ Z80_DRIVER_BIN := obj/SoundDriver.z80.bin
 RESOURCES_CFG := resources.cfg
 
 OBJS := \
+	$(VENV) \
 	$(SOURCE_DUMP) \
 	$(SOURCE_HASH) \
 	$(TARGET_ROM) \
@@ -44,10 +48,14 @@ $(OBJDIR):
 	@mkdir -p $(OBJDIR)
 	@mkdir -p $(OBJDIR)/include
 
+$(PYTHON3):
+	@$(SYSTEM_PYTHON) -m virtualenv -p $(SYSTEM_PYTHON) $(VENV)
+	@$(PYTHON3) -m pip install -r tools/requirements.txt
+
 clean:
 	rm -rf $(OBJDIR)/
 
-resources/.extracted: tools/extract_resources.py $(RESOURCES_CFG)
+resources/.extracted: $(PYTHON3) tools/extract_resources.py $(RESOURCES_CFG)
 	@$(PYTHON3) tools/extract_resources.py $(RESOURCES_CFG) $(SOURCE_ROM)
 	@touch resources/.extracted
 
