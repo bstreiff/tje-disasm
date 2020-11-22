@@ -59,11 +59,11 @@ class InterleavedRleDecompressor:
                     val = struct.unpack(">B", data.read(1))[0]
                     swapval = ((val << 4) & 0xF0) | ((val >> 4) & 0x0F)
                     token = token & 0x1F
-                    for i in range(0, int(token / 2) - 1):
+                    for i in range(0, token // 2):
                         decompressed[outpos] = val
                         decompressed[outpos+4] = swapval
                         outpos += 8
-                    if token % 2 == 0:
+                    if token % 2 == 1:
                         decompressed[outpos] = val
                         outpos += 4
 

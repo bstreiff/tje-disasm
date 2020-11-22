@@ -13,6 +13,8 @@ ROM_SPRITES = [
     0xE1DFC,
     0xE21BE,
     0xF1A0E,
+    0xE81A0,
+    0xE81AA,
 ]
 
 rom = open("tjae_rev02.bin", "rb")
@@ -43,6 +45,7 @@ for sprite_addr in ROM_SPRITES:
                     c_uint32(width * height),
                     c_uint32(sprite_addr))
     their_data = reference.get_mem().r_block(UnpackBuffer, expected_bytes)
-    print(our_data)
-    print(their_data)
+    print("======== SPRITE AT {0:x} =========".format(sprite_addr))
+    print(" ".join("{0:02x}".format(n) for n in our_data))
+    print(" ".join("{0:02x}".format(n) for n in their_data))
     print(our_data == their_data)
