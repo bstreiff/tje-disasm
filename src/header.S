@@ -1,3 +1,5 @@
+#include "build.h"
+
 	.section .text.header
 	.global HeaderConsole
 
@@ -33,7 +35,13 @@ HeaderIOSupport:
 HeaderRomStartLoc:
 	dc.l	0x00000000	/* start of rom */
 HeaderRomEndLoc:
+#if BUILD_M2_MENU_FIX
+	dc.l	0x00103FFF	/* end of rom */
+#elif BUILD_M2_SAWA
+	dc.l	0x0010067F	/* end of rom */
+#else
 	dc.l	0x000FFFFF	/* end of rom */
+#endif
 HeaderRamStartLoc:
 	dc.l	0x00FF0000	/* start of ram */
 HeaderRamEndLoc:
